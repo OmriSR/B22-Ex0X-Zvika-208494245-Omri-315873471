@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Logic
 {
     class GameBoard
     {
-        int size = 0;
+        Checkers checker;
+        ushort size = 0;
+
     }
 }
