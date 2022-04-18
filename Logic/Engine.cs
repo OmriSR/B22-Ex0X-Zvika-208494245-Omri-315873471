@@ -6,10 +6,10 @@ namespace Logic
 {
     class Engine
     {
-        public static void TranslateCharPositionToIndices(string i_charPos, ref int o_col, ref int o_row) 
+        public static void TranslateCharPositionToIndices(string i_CharPos, ref int o_Col, ref int o_Row) 
         {
-            o_col = Convert.ToInt32(i_charPos[0]);
-            o_row = Convert.ToInt32(i_charPos[1]);
+            o_Col = Convert.ToInt32(i_CharPos[0]);
+            o_Row = Convert.ToInt32(i_CharPos[1]);
         }
     }
 }

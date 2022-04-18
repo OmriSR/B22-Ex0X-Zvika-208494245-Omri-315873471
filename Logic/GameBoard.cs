@@ -18,6 +18,11 @@ namespace GameBoardNamespace
         {
             return m_GameBoard[i_Row][i_Col];
         }
+
+        public GameBoard(int i_BoardSize)
+        {
+                   
+        }
     }
 
     
