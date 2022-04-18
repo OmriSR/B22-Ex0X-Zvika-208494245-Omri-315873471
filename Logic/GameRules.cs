@@ -13,6 +13,7 @@ namespace Logic
                 short i_PlayerNumber,
                 short i_BoardSize,
                 ref bool i_PossibleEat,
+                bool i_IsKing,
                 GameBoard i_GameBoard)
             // we assume newRow and newCol are valid inputs. ---- CHECK IN PREVIOUS CALLS THAT INDEED HAPPENS ----
         {
@@ -22,18 +23,23 @@ namespace Logic
             Engine.eDirection inputDirection = getDirectionFromInput(i_CurrentRow, i_CurrentCol, i_NewRow, i_NewCol);
             if(inputDirection != Engine.eDirection.NullDirection)
             {
-                theMoveIsValid = checkValidMoveToAllDirections(
-                    i_NewRow,
-                    i_NewCol,
-                    i_PlayerNumber,
-                    i_BoardSize,
-                    i_GameBoard,
-                    ref i_PossibleEat,
-                    inputDirection);
-            }
-            else
-            {
-                theMoveIsValid = false;
+                if((!i_IsKing && (inputDirection == Engine.eDirection.DownLeft
+                                    || inputDirection == Engine.eDirection.DownRight)))
+                {
+                    theMoveIsValid = false;
+                }
+
+                else
+                {
+                    theMoveIsValid = checkValidMoveToAllDirections(
+                        i_NewRow,
+                        i_NewCol,
+                        i_PlayerNumber,
+                        i_BoardSize,
+                        i_GameBoard,
+                        ref i_PossibleEat,
+                        inputDirection);
+                }
             }
             return theMoveIsValid;
         }
@@ -50,7 +56,7 @@ namespace Logic
             // Input is valid thanks to function getDirectionFromInput
             short itemInNextStep = i_GameBoard.GetItemOnPosition(i_NewRow, i_NewCol);
             bool isNextMoveValid = true;
-            updateNewRowAndCol(i_Direction, ref i_NewRow, ref i_NewCol); // Checking the step AFTERWARDS the one we take.
+            updateNewRowAndCol(i_Direction, ref i_NewRow, ref i_NewCol); // Checking the step AFTERWARDS the one we take.    
             if (itemInNextStep == 0)
             {
                 isNextMoveValid = true;
