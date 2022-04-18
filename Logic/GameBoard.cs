@@ -7,18 +7,20 @@ namespace Logic
 {
     class GameBoard
     {
-        private ushort[,] m_GameBoard; // 0 = blank, 1 = player1 = X, 2 = player2 = O
-        private readonly ushort r_BoardSize;
+        private short[,] m_GameBoard; // 0 = blank, 1 = player1 = X, 2 = player2 = O
+        private readonly short r_BoardSize;
+
+        
 
         static void Main()
         {
             Console.WriteLine("Testing printing the 2d array to make sure it's good. Please enter size>0 of table: ");
             string val = Console.ReadLine();
-            ushort res = Convert.ToUInt16(val);
+            short res = Convert.ToInt16(val);
             GameBoard abc = new GameBoard(res);
-            for(ushort i = 0; i < res; i++)
+            for(short i = 0; i < res; i++)
             {
-                for(ushort j = 0; j < res; j++)
+                for(short j = 0; j < res; j++)
                 {
                     Console.Write(abc.GetItemOnPosition(i,j));
                 }
@@ -27,18 +29,18 @@ namespace Logic
             }
         }
 
-        public ushort GetItemOnPosition(ushort i_Row, ushort i_Col)
+        public short GetItemOnPosition(short i_Row, short i_Col)
         {
             return m_GameBoard[i_Row, i_Col];
         }
 
-        public GameBoard(ushort i_BoardSize) // We assume that board size is valid
+        public GameBoard(short i_BoardSize) // We assume that board size is valid
         {
             r_BoardSize = i_BoardSize;
-            m_GameBoard = new ushort[r_BoardSize, r_BoardSize];
-            for(ushort row = 0; row < i_BoardSize; row++)
+            m_GameBoard = new short[r_BoardSize, r_BoardSize];
+            for(short row = 0; row < i_BoardSize; row++)
             {
-                for(ushort col = 0; col < i_BoardSize; col++)
+                for(short col = 0; col < i_BoardSize; col++)
                 {
                     if((row < (i_BoardSize / 2) - 1) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
