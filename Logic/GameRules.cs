@@ -1,7 +1,7 @@
 ﻿using System;
-using GameBoardNamespace;
+using Logic;
 
-namespace GameRulesNamespace
+namespace Logic
 {
     class GameRules
     {
