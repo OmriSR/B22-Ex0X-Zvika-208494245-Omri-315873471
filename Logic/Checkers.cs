@@ -6,8 +6,8 @@ namespace Logic
 {
     public class Checkers
     {
-        ushort m_Row;
-        ushort m_Col;
+        short m_Row;
+        short m_Col;
         bool isKing = false;
 
         public int Row
@@ -18,7 +18,7 @@ namespace Logic
             }
             set
             {
-                m_Row = Convert.ToUInt16(value);
+                m_Row = Convert.ToInt16(value);
             }
         }
         public int Col
@@ -29,7 +29,7 @@ namespace Logic
             }
             set
             {
-                m_Col = Convert.ToUInt16(value);
+                m_Col = Convert.ToInt16(value);
             }
         }
 
@@ -37,8 +37,8 @@ namespace Logic
         {
             int col = -1 , row = -1;
             Engine.TranslateCharPositionToIndices(i_COLrow, ref col, ref  row);
-            m_Row = (row != -1) ? Convert.ToUInt16(row) : m_Row;
-            m_Col = (col != -1) ? Convert.ToUInt16(col) : m_Col;
+            m_Row = (row != -1) ? Convert.ToInt16(row) : m_Row;
+            m_Col = (col != -1) ? Convert.ToInt16(col) : m_Col;
         }
     }
 }
