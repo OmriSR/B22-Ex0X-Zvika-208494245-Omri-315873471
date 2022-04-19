@@ -56,6 +56,5 @@ namespace Logic
             return (i_PlayerNumber == i_GameBoard.GetItemOnPosition(i_Row, i_Col));
         }
         
-
     }
 }
