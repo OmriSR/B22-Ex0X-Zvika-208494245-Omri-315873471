@@ -7,7 +7,7 @@ namespace Logic
     class DataProcessor
     {
         public enum eTranslatedUserPlayInput { Quit = 1, ValidMove = 2, InvalidInput = 3}
-        public static bool CheckUserPlayInput(string i_UserInput, out eTranslatedUserPlayInput o_PlayOutput)
+        public static bool CheckUserPlayInput(string i_UserInput, out eTranslatedUserPlayInput o_PlayOutput)  // this is 'isInputValid' method. enum not needed
         {
             o_PlayOutput = eTranslatedUserPlayInput.InvalidInput;
             bool isValidInput = true;

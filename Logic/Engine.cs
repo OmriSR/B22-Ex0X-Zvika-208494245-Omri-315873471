@@ -15,14 +15,23 @@ namespace Logic
             NullDirection = 5
         }
 
-        public static void TranslateCharPositionToIndices(string i_CharPos, ref short o_CurrentCol, ref short o_CurrentRow) 
-        {
-            //o_Col = Convert.ToInt16(i_CharPos[0]) - 'A';
-            //o_Row = Convert.ToInt16(i_CharPos[1]) - 'a';
-            o_CurrentCol = (short)(i_CharPos[0] - 'A');
-            o_CurrentRow = (short)(i_CharPos[1] - 'a');
+        public void StartGame()
+        {   
+            while(/*not quit*/ true)
+            {
+                // whos turn is it?
+                //get move
+                //validate move
+                //can coin eat?
+                //move coin
+                // going back to whos turn is it -- if the player ate the other he gets one more turn
+            }
         }
 
-
+        public static void TranslatePositionToIndices(string i_CharPos, ref short o_Col, ref short o_Row)
+        { 
+            o_Col = Convert.ToInt16(i_CharPos[0] - 'A');
+            o_Row = Convert.ToInt16(i_CharPos[1] - 'a');
+        }
     }
 }
