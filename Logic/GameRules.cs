@@ -4,16 +4,89 @@ using Logic;
 
 namespace Logic
 {
-    class GameRules
+    class GameRules   // mostly valitition
     {
-        public static bool CheckValidMove(
-                short i_CurrentRow,
-                short i_CurrentCol,
-                short i_NewRow,
-                short i_NewCol,
-                short i_PlayerNumber,
-                short i_BoardSize,
-                ref bool i_PossibleEat,
+        public eCellOwner checkUpRightCellPlayer(Cell[,] i_gameBoard, short i_col, short i_row)
+        {
+            eCellOwner playerInCell;
+
+            if(i_gameBoard[i_row, i_col].coin.player == eCellOwner.Player2)
+            {
+                playerInCell = i_gameBoard[i_row + 1, i_col - 1].coin.player;
+            }
+            else
+            {
+                playerInCell = i_gameBoard[i_row - 1, i_col + 1].coin.player;
+            }
+
+            return playerInCell;
+        }
+
+        public eCellOwner checkUpLeftCellPlayer(Cell[,] i_gameBoard, short i_col, short i_row)
+        {
+            eCellOwner playerInCell;
+
+            if (i_gameBoard[i_row, i_col].coin.player == eCellOwner.Player2)
+            {
+                playerInCell = i_gameBoard[i_row + 1, i_col + 1].coin.player;
+            }
+            else
+            {
+                playerInCell = i_gameBoard[i_row - 1, i_col - 1].coin.player;
+            }
+
+            return playerInCell;
+        }
+
+        public bool checkIfValidMove(Cell[,] i_gameBoard, short i_col, short i_row, string i_input, eDirection i_moveDirection)
+        {
+            bool moveIsValid = false;
+
+            switch (i_moveDirection)
+            {
+                case eDirection.UpRight:
+                    checkUpRightCellPlayer(i_gameBoard, i_col, i_row);
+                    break;
+                case eDirection.UpLeft:
+                    break;
+                case eDirection.DownRight:
+                    break;
+                case eDirection.DownLeft:
+                    break;
+                case eDirection.NullDirection:
+                    break;
+            }
+
+            /*
+             check if can eat around me and how many ---
+            if 1 ==> check if move is in that direction,
+                if yes ==> valid                                          need to think of logic --- many diffrent methods are required!
+                else  ==> not valid.
+            else ==> 
+
+
+             check if empty cell - if it is ==> valid move.
+             if not empty,
+             if coin is same player as me ==> invalid move
+             */
+
+            return true;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public static bool CheckValidMove(short i_CurrentRow, short i_CurrentCol, short i_NewRow, short i_NewCol, short i_PlayerNumber, short i_BoardSize ,ref bool i_PossibleEat,
                 bool i_IsKing,
                 GameBoard i_GameBoard)
             // we assume newRow and newCol are valid inputs. ---- CHECK IN PREVIOUS CALLS THAT INDEED HAPPENS ----
@@ -25,36 +98,28 @@ namespace Logic
 
             if(inputDirection != Engine.eDirection.NullDirection)
             {
-                if((!i_IsKing && (inputDirection == Engine.eDirection.DownLeft
-                                    || inputDirection == Engine.eDirection.DownRight)))
+                if ((!i_IsKing && (inputDirection == Engine.eDirection.DownLeft || inputDirection == Engine.eDirection.DownRight)))
                 {
                     theMoveIsValid = false;
                 }
 
                 else
                 {
-                    theMoveIsValid = checkValidMoveToAllDirections(
-                        i_NewRow,
-                        i_NewCol,
-                        i_PlayerNumber,
-                        i_BoardSize,
-                        i_GameBoard,
-                        ref i_PossibleEat,
-                        inputDirection);
+                    //theMoveIsValid = checkValidMoveToAllDirections(i_NewRow, i_NewCol, i_PlayerNumber, i_BoardSize, i_GameBoard, ref i_PossibleEat, inputDirection);
                 }
             }
 
             return theMoveIsValid;
         }
 
-        private static bool checkValidMoveToAllDirections(
+        /*private static bool checkValidMoveToAllDirections(
             short i_NewRow,
             short i_NewCol,
             short i_PlayerNumber,
             short i_BoardSize,
             GameBoard i_GameBoard,
             ref bool i_PossibleEat,
-            Engine.eDirection i_Direction)
+            Engine.eDirection i_Direction)    --------------- need to be fixed
         {
             // Input is valid thanks to function getDirectionFromInput
             short itemInNextStep = i_GameBoard.GetItemOnPosition(i_NewRow, i_NewCol);
@@ -90,6 +155,7 @@ namespace Logic
 
             return isNextMoveValid;
         }
+        */
 
         private static void updateNewRowAndCol(Engine.eDirection i_Direction, ref short i_NewRow, ref short i_NewCol)
         {
