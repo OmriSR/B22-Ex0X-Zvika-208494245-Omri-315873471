@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using Logic;
 
 namespace Logic
@@ -21,6 +22,7 @@ namespace Logic
             i_PossibleEat = false;
             theMoveIsValid = i_NewRow < i_BoardSize && i_NewCol < i_BoardSize; // Checking out of bounds
             Engine.eDirection inputDirection = getDirectionFromInput(i_CurrentRow, i_CurrentCol, i_NewRow, i_NewCol);
+
             if(inputDirection != Engine.eDirection.NullDirection)
             {
                 if((!i_IsKing && (inputDirection == Engine.eDirection.DownLeft
@@ -41,6 +43,7 @@ namespace Logic
                         inputDirection);
                 }
             }
+
             return theMoveIsValid;
         }
 
@@ -57,6 +60,7 @@ namespace Logic
             short itemInNextStep = i_GameBoard.GetItemOnPosition(i_NewRow, i_NewCol);
             bool isNextMoveValid = true;
             updateNewRowAndCol(i_Direction, ref i_NewRow, ref i_NewCol); // Checking the step AFTERWARDS the one we take.    
+
             if (itemInNextStep == 0)
             {
                 isNextMoveValid = true;
@@ -126,7 +130,7 @@ namespace Logic
         {
             Engine.eDirection resultDirection = Engine.eDirection.NullDirection;
             short rows = (short)(i_CurrentRow - i_NewRow);
-            short cols = (short)(i_CurrentCol - i_CurrentCol);
+            short cols = (short)(i_CurrentCol - i_NewCol);
 
             //  UP              RIGHT
             if(rows == 1 && cols == -1)
