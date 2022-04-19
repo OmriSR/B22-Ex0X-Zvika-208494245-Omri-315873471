@@ -22,8 +22,13 @@ namespace Logic
                 // whos turn is it?
                 //get move
                 //validate move
+
+                //***if quit exit
+
+                // any valid moves left? if not - its a tie
                 //can coin eat?
                 //move coin
+                //do we have a winner/loser?
                 // going back to whos turn is it -- if the player ate the other he gets one more turn
             }
         }
