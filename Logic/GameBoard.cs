@@ -10,22 +10,7 @@ namespace Logic
         private short[,] m_GameBoard; // 0 = blank, 1 = player1 = X, 2 = player2 = O
         private readonly short r_BoardSize;
 
-        static void Main() // We will need to delete.
-        {
-            Console.WriteLine("Testing printing the 2d array to make sure it's good. Please enter size>0 of table: ");
-            string val = Console.ReadLine();
-            short res = Convert.ToInt16(val);
-            GameBoard abc = new GameBoard(res);
-            for(short i = 0; i < res; i++)
-            {
-                for(short j = 0; j < res; j++)
-                {
-                    Console.Write(abc.GetItemOnPosition(i,j));
-                }
-
-                Console.Write(Environment.NewLine);
-            }
-        }
+        
 
         public short GetItemOnPosition(short i_Row, short i_Col)
         {

@@ -6,50 +6,42 @@ namespace Logic
 {
     class DataProcessor
     {
-        public enum eTranslatedUserPlayInput { Quit = 1, Valid = 2, Invalid = 3}
-        public static bool CheckUserPlayInput(string i_UserInput, out eTranslatedUserPlayInput o_PlayOutput)
+        private bool isCapitalLetter(char i_charToCheck)
         {
-            o_PlayOutput = eTranslatedUserPlayInput.Invalid;
-            bool isValidInput = true;
-
-            if(i_UserInput.Length == 6)
-            {
-                isValidInput = checkSixLengthInput((i_UserInput));
-            }
-
-            else if (i_UserInput == "Q" || i_UserInput == "q")
-            {
-                o_PlayOutput = eTranslatedUserPlayInput.Quit;
-            }
-
-            else
-            {
-                    isValidInput = false;
-            }
-
-            if (isValidInput)
-            {
-                o_PlayOutput = eTranslatedUserPlayInput.Valid;
-            }
-
-            return isValidInput;
+            return (i_charToCheck >= 'A' && i_charToCheck <= 'Z');
         }
 
-        private static bool checkSixLengthInput(string i_UserInput)
+        private bool islowerCaseLetter(char i_charToCheck)
         {
-            return i_UserInput[2] == '>' && i_UserInput[5] == '\0' && checkTwoUpperLetters(i_UserInput)
-                   && checkTwoSmallLetters(i_UserInput);
+            return (i_charToCheck >= 'a' && i_charToCheck <= 'z');
         }
 
-        private static bool checkTwoUpperLetters(string i_StringInput)
+        public bool IsValidInput(string i_UserInput)
         {
-            return (i_StringInput[0] >= 'A' && i_StringInput[3] <= 'Z');
+            bool isValid = false;
+
+            if (i_UserInput.Length == 5)
+            {
+                bool colsValid = (isCapitalLetter(i_UserInput[0]) && isCapitalLetter(i_UserInput[3]));
+                bool rowsValid = (islowerCaseLetter(i_UserInput[1]) && islowerCaseLetter(i_UserInput[4]));
+                bool signValid = i_UserInput[2] == '>';
+
+                isValid = colsValid && rowsValid && signValid;
+            }
+
+            else if(i_UserInput.Length == 1)
+            {
+                isValid = isCapitalLetter(i_UserInput[0]) || islowerCaseLetter(i_UserInput[0]);
+            }
+
+            return isValid;
         }
 
-        private static bool checkTwoSmallLetters(string i_StringInput)
+        public bool CheckIfQuit(string i_userInput)
         {
-            return (i_StringInput[1] >= 'a' && i_StringInput[4] <= 'z');
+            return (i_userInput[0] == 'q' || i_userInput[0] == 'Q');
         }
+
 
         // האם בנקודה הזו יש חייל שלי
         public static bool CheckIfGivenPositionIsMyCoin(short i_PlayerNumber, short i_Row, short i_Col, GameBoard i_GameBoard)
