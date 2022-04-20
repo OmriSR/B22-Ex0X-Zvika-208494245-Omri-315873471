@@ -16,7 +16,7 @@ namespace Logic
             return (i_charToCheck >= 'a' && i_charToCheck <= 'z');
         }
 
-        public bool IsValidInput(string i_UserInput)
+        private bool isValidInput(string i_UserInput)
         {
             bool isValid = false;
 
@@ -37,16 +37,21 @@ namespace Logic
             return isValid;
         }
 
-        public bool CheckIfQuit(string i_userInput)
+        private bool checkIfQuit(string i_userInput)
         {
             return (i_userInput[0] == 'q' || i_userInput[0] == 'Q');
         }
 
+        private void translateCharPositionToIndices(string i_CharPos, ref short o_col, ref short o_row)
+        {
+            o_col = Convert.ToInt16(i_CharPos[0] - 'A');
+            o_row = Convert.ToInt16(i_CharPos[1] - 'a');
+        }
 
-        //public static bool CheckIfGivenPositionIsMyCoin(short i_PlayerNumber, short i_Row, short i_Col, GameBoard i_GameBoard)
-        //{
-        //    return (i_PlayerNumber == i_GameBoard.GetItemOnPosition(i_Row, i_Col));
-        //}
-        
+        private void translateStringInput(string i_input, out short o_curCol, out short o_curRow, out short o_nextCol, out short o_nextRow)
+        {
+            /* break input to pices and send to method above*/
+        }
+
     }
 }

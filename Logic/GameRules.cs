@@ -6,7 +6,7 @@ namespace Logic
 {
     class GameRules   // mostly valitition
     {
-        public eCellOwner checkUpRightCellPlayer(Cell[,] i_gameBoard, short i_col, short i_row)
+        private eCellOwner checkUpRightCellOwner(Cell[,] i_gameBoard, short i_col, short i_row)   
         {
             eCellOwner playerInCell;
 
@@ -22,7 +22,7 @@ namespace Logic
             return playerInCell;
         }
 
-        public eCellOwner checkUpLeftCellPlayer(Cell[,] i_gameBoard, short i_col, short i_row)
+        private eCellOwner checkUpLeftCellOwner(Cell[,] i_gameBoard, short i_col, short i_row)
         {
             eCellOwner playerInCell;
 
@@ -38,9 +38,40 @@ namespace Logic
             return playerInCell;
         }
 
-        public bool checkIfValidMove(Cell[,] i_gameBoard, short i_col, short i_row, string i_input, eDirection i_moveDirection)
+        private bool isCoinOponnentPlayer(eCellOwner i_currentPlayer, eCellOwner i_cellOwnerToCheck)
+        {
+            return (i_cellOwnerToCheck != i_currentPlayer && i_cellOwnerToCheck !=eCellOwner.Empty);
+        }
+
+        private short coutPossibleSkipsFromCoin(Cell[,] i_gameBoard, short i_col, short i_row)
+        {
+            short skipsCount = 0;
+            eCellOwner currentPlayer = i_gameBoard[i_col, i_row].coin.player;
+
+            if (isCoinOponnentPlayer(currentPlayer, checkUpRightCellOwner(i_gameBoard,i_col,i_row)))
+            {
+                ++skipsCount;
+            }
+
+            if (isCoinOponnentPlayer(currentPlayer, checkUpLeftCellOwner(i_gameBoard, i_col, i_row)))
+            {
+                ++skipsCount;
+            }
+
+            return skipsCount;
+        }
+
+        //        private short coutPossibleSkipsFromKINGCoin(Cell[,] i_gameBoard, short i_col, short i_row)   for later implementation  -- just add check for back steps
+
+        public bool CheckIfValidMove(Cell[,] i_gameBoard, short i_col, short i_row, string i_input, eDirection i_moveDirection)
         {
             bool moveIsValid = false;
+            short skipsPossible = coutPossibleSkipsFromCoin(i_gameBoard, i_col, i_row);
+
+            if(skipsPossible == 1)
+            {
+
+            }
 
             switch (i_moveDirection)
             {
