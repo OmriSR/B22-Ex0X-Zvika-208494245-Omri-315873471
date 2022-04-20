@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Logic
 {
-    class DataProcessor
+    class DataProcessor  // input handler --- with help from game rules for validation
     {
         private bool isCapitalLetter(char i_charToCheck)
         {
@@ -43,11 +43,10 @@ namespace Logic
         }
 
 
-        // האם בנקודה הזו יש חייל שלי
-        public static bool CheckIfGivenPositionIsMyCoin(short i_PlayerNumber, short i_Row, short i_Col, GameBoard i_GameBoard)
-        {
-            return (i_PlayerNumber == i_GameBoard.GetItemOnPosition(i_Row, i_Col));
-        }
+        //public static bool CheckIfGivenPositionIsMyCoin(short i_PlayerNumber, short i_Row, short i_Col, GameBoard i_GameBoard)
+        //{
+        //    return (i_PlayerNumber == i_GameBoard.GetItemOnPosition(i_Row, i_Col));
+        //}
         
     }
 }

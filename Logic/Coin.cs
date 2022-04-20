@@ -6,16 +6,46 @@ namespace Logic
 {
     class Coin
     {
-        short m_Row;
-        short m_Col;
-        bool isKing = false;
+        bool m_isKing = false;
+        readonly eCellOwner r_player;
+        short m_possibleMovesCount;
 
-        public void MoveChecker(string i_COLrow)   // Assuming that validation was checked by GameRules and only next position was given.
+        public Coin(eCellOwner i_player, short i_numOfPossibleMoves)
         {
-            short col = -1, row = -1;
-            Engine.TranslateCharPositionToIndices(i_COLrow, ref col, ref row);
-            m_Row = (row != -1) ? Convert.ToInt16(row) : m_Row;
-            m_Col = (col != -1) ? Convert.ToInt16(col) : m_Col;
+            r_player = i_player;
+            m_possibleMovesCount = i_numOfPossibleMoves;
+        }
+
+        public bool isKing
+        {
+            get
+            {
+                return m_isKing;
+            }
+            set
+            {
+                m_isKing = true;
+            }
+        }
+
+        public short possibleMoveCount
+        {
+            get
+            {
+                return m_possibleMovesCount;
+            }
+            set
+            {
+                m_possibleMovesCount = value;
+            }
+        }
+
+        public eCellOwner player
+        {
+            get
+            {
+                return r_player;
+            }
         }
     }
 }
