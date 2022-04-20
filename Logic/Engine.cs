@@ -59,11 +59,7 @@ namespace Logic
 
 
 
-        public static void TranslateCharPositionToIndices(string i_CharPos, ref short o_col, ref short o_row) 
-        {
-             o_col = Convert.ToInt16(i_CharPos[0] - 'A');
-             o_row = Convert.ToInt16(i_CharPos[1] - 'a');
-        }
+
 
 
     }
