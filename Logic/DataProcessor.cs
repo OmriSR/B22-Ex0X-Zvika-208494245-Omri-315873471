@@ -6,14 +6,14 @@ namespace Logic
 {
     class DataProcessor  // input handler --- with help from game rules for validation
     {
-        private bool isCapitalLetter(char i_charToCheck)
+        private bool isCapitalLetter(char i_CharToCheck)
         {
-            return (i_charToCheck >= 'A' && i_charToCheck <= 'Z');
+            return (i_CharToCheck >= 'A' && i_CharToCheck <= 'Z');
         }
 
-        private bool islowerCaseLetter(char i_charToCheck)
+        private bool islowerCaseLetter(char i_CharToCheck)
         {
-            return (i_charToCheck >= 'a' && i_charToCheck <= 'z');
+            return (i_CharToCheck >= 'a' && i_CharToCheck <= 'z');
         }
 
         private bool isValidInput(string i_UserInput)
@@ -37,9 +37,9 @@ namespace Logic
             return isValid;
         }
 
-        private bool checkIfQuit(string i_userInput)
+        private bool checkIfQuit(string i_UserInput)
         {
-            return (i_userInput[0] == 'q' || i_userInput[0] == 'Q');
+            return (i_UserInput[0] == 'q' || i_UserInput[0] == 'Q');
         }
 
         private void translateCharPositionToIndices(string i_CharPos, ref short o_col, ref short o_row)
@@ -48,10 +48,10 @@ namespace Logic
             o_row = Convert.ToInt16(i_CharPos[1] - 'a');
         }
 
-        private void translateStringInput(string i_input, out short o_curCol, out short o_curRow, out short o_nextCol, out short o_nextRow)
-        {
-            /* break input to pices and send to method above*/
-        }
+        //private void translateStringInput(string i_input, out short o_curCol, out short o_curRow, out short o_nextCol, out short o_nextRow)
+        //{
+        //    /* break input to pices and send to method above*/
+        //}
 
     }
 }
