@@ -10,38 +10,38 @@ namespace Logic
     {
         //short m_row, m_col;
         bool m_isEmpty;
-        Coin m_coin = null;
+        Coin m_coin;
 
-        public Cell( eCellOwner i_cellOwner, short i_col, short i_row, short i_boardSize)
+        public Cell( eCellOwner i_CellOwner, short i_Col, short i_Row, short i_BoardSize)
         {
-            m_isEmpty = (i_cellOwner == eCellOwner.Empty);
+            m_isEmpty = (i_CellOwner == eCellOwner.Empty);
 
             if (!m_isEmpty)
             {
-                short possibleMovesCount = countInitialPossibleMovesFromCell(i_col, i_row, i_boardSize);
+                short possibleMovesCount = countInitialPossibleMovesFromCell(i_Col, i_Row, i_BoardSize);
 
-                m_coin = new Coin(i_cellOwner, possibleMovesCount);
+                m_coin = new Coin(i_CellOwner, possibleMovesCount);
             }
         }
 
-        private bool isFrontLine(short i_row, short i_boardSize)
+        private bool isFrontLine(short i_Row, short i_BoardSize)
         {
-            return ((i_row == i_boardSize / 2 - 2) || (i_row == i_boardSize / 2 + 1));
+            return ((i_Row == i_BoardSize / 2 - 2) || (i_Row == i_BoardSize / 2 + 1));
         }
 
-        private bool isOuterColumn(short i_col, short i_boardSize)
+        private bool isOuterColumn(short i_Col, short i_BoardSize)
         {
 
-            return ((i_col == (i_boardSize - 1)) || (i_col == 0));
+            return ((i_Col == (i_BoardSize - 1)) || (i_Col == 0));
         }
 
-        short countInitialPossibleMovesFromCell(short i_col, short i_row, short i_boardSize)
+        short countInitialPossibleMovesFromCell(short i_Col, short i_Row, short i_BoardSize)
         {
             short possibleMoves = 0;
 
-            if (isFrontLine(i_row, i_boardSize))
+            if (isFrontLine(i_Row, i_BoardSize))
             {
-                possibleMoves = Convert.ToInt16( isOuterColumn(i_col, i_boardSize) ? 1 : 2 );
+                possibleMoves = Convert.ToInt16( isOuterColumn(i_Col, i_BoardSize) ? 1 : 2 );
             }
 
             return possibleMoves;
@@ -56,6 +56,18 @@ namespace Logic
             set
             {
                 m_coin = value;
+            }
+        }
+
+        public bool isEmpty
+        {
+            get
+            {
+                return m_isEmpty;
+            }
+            set
+            {
+                m_isEmpty = value;
             }
         }
     }

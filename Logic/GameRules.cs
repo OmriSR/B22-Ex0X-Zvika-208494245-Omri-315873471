@@ -4,81 +4,84 @@ using Logic;
 
 namespace Logic
 {
-    class GameRules   // mostly valitition
+    class GameRules   // mostly validation
     {
-        private eCellOwner checkUpRightCellOwner(Cell[,] i_gameBoard, short i_col, short i_row)   
+        private eCellOwner checkUpRightCellOwner(Cell[,] i_GameBoard, short i_Col, short i_Row)  
         {
             eCellOwner playerInCell;
 
-            if(i_gameBoard[i_row, i_col].coin.player == eCellOwner.Player2)
+            if(i_GameBoard[i_Row, i_Col].coin.player == eCellOwner.Player2)
             {
-                playerInCell = i_gameBoard[i_row + 1, i_col - 1].coin.player;
+                playerInCell = i_GameBoard[i_Row + 1, i_Col - 1].coin.player; // Zvika: "row+1 col-1 ze down-left. lo evanti ma kore po"
             }
             else
             {
-                playerInCell = i_gameBoard[i_row - 1, i_col + 1].coin.player;
+                playerInCell = i_GameBoard[i_Row - 1, i_Col + 1].coin.player;
             }
 
             return playerInCell;
         }
 
-        private eCellOwner checkUpLeftCellOwner(Cell[,] i_gameBoard, short i_col, short i_row)
+        private eCellOwner checkUpLeftCellOwner(Cell[,] i_GameBoard, short i_Col, short i_Row) 
         {
             eCellOwner playerInCell;
 
-            if (i_gameBoard[i_row, i_col].coin.player == eCellOwner.Player2)
+            if (i_GameBoard[i_Row, i_Col].coin.player == eCellOwner.Player2)
             {
-                playerInCell = i_gameBoard[i_row + 1, i_col + 1].coin.player;
+                playerInCell = i_GameBoard[i_Row + 1, i_Col + 1].coin.player;
             }
             else
             {
-                playerInCell = i_gameBoard[i_row - 1, i_col - 1].coin.player;
+                playerInCell = i_GameBoard[i_Row - 1, i_Col - 1].coin.player;
             }
 
             return playerInCell;
         }
 
-        private bool isCoinOponnentPlayer(eCellOwner i_currentPlayer, eCellOwner i_cellOwnerToCheck)
+        private bool isCoinOpponentPlayer(eCellOwner i_CurrentPlayer, eCellOwner i_CellOwnerToCheck)
         {
-            return (i_cellOwnerToCheck != i_currentPlayer && i_cellOwnerToCheck !=eCellOwner.Empty);
+            return (i_CellOwnerToCheck != i_CurrentPlayer && i_CellOwnerToCheck !=eCellOwner.Empty);
         }
 
-        private short coutPossibleSkipsFromCoin(Cell[,] i_gameBoard, short i_col, short i_row)
+        private short countPossibleSkipsFromCoin(Cell[,] i_GameBoard, short i_Col, short i_Row)
         {
             short skipsCount = 0;
-            eCellOwner currentPlayer = i_gameBoard[i_col, i_row].coin.player;
+            eCellOwner currentPlayer = i_GameBoard[i_Col, i_Row].coin.player;
+            bool isKing = i_GameBoard[i_Col, i_Row].coin.isKing;
 
-            if (isCoinOponnentPlayer(currentPlayer, checkUpRightCellOwner(i_gameBoard,i_col,i_row)))
+            if (isCoinOpponentPlayer(currentPlayer, checkUpRightCellOwner(i_GameBoard,i_Col,i_Row)))
             {
                 ++skipsCount;
             }
 
-            if (isCoinOponnentPlayer(currentPlayer, checkUpLeftCellOwner(i_gameBoard, i_col, i_row)))
+            if (isCoinOpponentPlayer(currentPlayer, checkUpLeftCellOwner(i_GameBoard, i_Col, i_Row)))
             {
                 ++skipsCount;
             }
+
 
             return skipsCount;
         }
 
-        //        private short coutPossibleSkipsFromKINGCoin(Cell[,] i_gameBoard, short i_col, short i_row)   for later implementation  -- just add check for back steps
+        //        private short coutPossibleSkipsFromKINGCoin(Cell[,] i_GameBoard, short i_Col, short i_Row)   for later implementation  -- just add check for back steps
 
-        public bool CheckIfValidMove(Cell[,] i_gameBoard, short i_col, short i_row, string i_input, eDirection i_moveDirection)
+        public bool CheckIfValidMove(Cell[,] i_GameBoard, short i_Col, short i_Row, string i_Input, eDirection i_MoveDirection)
         {
             bool moveIsValid = false;
-            short skipsPossible = coutPossibleSkipsFromCoin(i_gameBoard, i_col, i_row);
+            short skipsPossible = countPossibleSkipsFromCoin(i_GameBoard, i_Col, i_Row);
 
             if(skipsPossible == 1)
             {
 
             }
 
-            switch (i_moveDirection)
+            switch(i_MoveDirection)
             {
                 case eDirection.UpRight:
-                    checkUpRightCellPlayer(i_gameBoard, i_col, i_row);
+                    checkUpRightCellOwner(i_GameBoard, i_Col, i_Row);
                     break;
                 case eDirection.UpLeft:
+                    checkUpLeftCellOwner(i_GameBoard, i_Col, i_Row);
                     break;
                 case eDirection.DownRight:
                     break;
@@ -114,34 +117,37 @@ namespace Logic
 
 
 
+        // The upper function is much much better^
 
 
+        // Need to delete the down function VVVV
+        // Keeping for now, in case we run into bugs and need to see another implementation. 
 
-        public static bool CheckValidMove(short i_CurrentRow, short i_CurrentCol, short i_NewRow, short i_NewCol, short i_PlayerNumber, short i_BoardSize ,ref bool i_PossibleEat,
-                bool i_IsKing,
-                GameBoard i_GameBoard)
-            // we assume newRow and newCol are valid inputs. ---- CHECK IN PREVIOUS CALLS THAT INDEED HAPPENS ----
-        {
-            bool theMoveIsValid = true;
-            i_PossibleEat = false;
-            theMoveIsValid = i_NewRow < i_BoardSize && i_NewCol < i_BoardSize; // Checking out of bounds
-            Engine.eDirection inputDirection = getDirectionFromInput(i_CurrentRow, i_CurrentCol, i_NewRow, i_NewCol);
+        //public static bool CheckValidMove(short i_CurrentRow, short i_CurrentCol, short i_NewRow, short i_NewCol, short i_PlayerNumber, short i_BoardSize ,ref bool i_PossibleEat,
+        //        bool i_IsKing,
+        //        GameBoard i_GameBoard)
+        //    // we assume newRow and newCol are valid inputs. ---- CHECK IN PREVIOUS CALLS THAT INDEED HAPPENS ----
+        //{
+        //    bool theMoveIsValid = true;
+        //    i_PossibleEat = false;
+        //    theMoveIsValid = i_NewRow < i_BoardSize && i_NewCol < i_BoardSize; // Checking out of bounds
+        //    eDirection inputDirection = getDirectionFromInput(i_CurrentRow, i_CurrentCol, i_NewRow, i_NewCol);
 
-            if(inputDirection != Engine.eDirection.NullDirection)
-            {
-                if ((!i_IsKing && (inputDirection == Engine.eDirection.DownLeft || inputDirection == Engine.eDirection.DownRight)))
-                {
-                    theMoveIsValid = false;
-                }
+        //    if(inputDirection != eDirection.NullDirection)
+        //    {
+        //        if ((!i_IsKing && (inputDirection == eDirection.DownLeft || inputDirection == eDirection.DownRight)))
+        //        {
+        //            theMoveIsValid = false;
+        //        }
 
-                else
-                {
-                    //theMoveIsValid = checkValidMoveToAllDirections(i_NewRow, i_NewCol, i_PlayerNumber, i_BoardSize, i_GameBoard, ref i_PossibleEat, inputDirection);
-                }
-            }
+        //        else
+        //        {
+        //            //theMoveIsValid = checkValidMoveToAllDirections(i_NewRow, i_NewCol, i_PlayerNumber, i_BoardSize, i_GameBoard, ref i_PossibleEat, inputDirection);
+        //        }
+        //    }
 
-            return theMoveIsValid;
-        }
+        //    return theMoveIsValid;
+        //}
 
         /*private static bool checkValidMoveToAllDirections(
             short i_NewRow,
@@ -150,7 +156,7 @@ namespace Logic
             short i_BoardSize,
             GameBoard i_GameBoard,
             ref bool i_PossibleEat,
-            Engine.eDirection i_Direction)    --------------- need to be fixed
+            eDirection i_Direction)    --------------- need to be fixed
         {
             // Input is valid thanks to function getDirectionFromInput
             short itemInNextStep = i_GameBoard.GetItemOnPosition(i_NewRow, i_NewCol);
@@ -188,29 +194,29 @@ namespace Logic
         }
         */
 
-        private static void updateNewRowAndCol(Engine.eDirection i_Direction, ref short i_NewRow, ref short i_NewCol)
+        private static void updateNewRowAndCol(eDirection i_Direction, ref short i_NewRow, ref short i_NewCol)
         {
             switch (i_Direction)
             {
-                case Engine.eDirection.UpRight:
+                case eDirection.UpRight:
                     {
                         i_NewRow--;
                         i_NewCol++;
                         break;
                     }
-                case Engine.eDirection.UpLeft:
+                case eDirection.UpLeft:
                     {
                         i_NewRow--;
                         i_NewCol--;
                         break;
                     }
-                case Engine.eDirection.DownRight:
+                case eDirection.DownRight:
                     {
                         i_NewRow++;
                         i_NewCol++;
                         break;
                     }
-                case Engine.eDirection.DownLeft:
+                case eDirection.DownLeft:
                     {
                         i_NewRow++;
                         i_NewCol--;
@@ -219,42 +225,47 @@ namespace Logic
             }
         }
 
-        private static Engine.eDirection getDirectionFromInput(
+        private static eDirection getDirectionFromInput(
             short i_CurrentRow,
             short i_CurrentCol,
             short i_NewRow,
             short i_NewCol)
         {
-            Engine.eDirection resultDirection = Engine.eDirection.NullDirection;
+            eDirection resultDirection = eDirection.NullDirection;
             short rows = (short)(i_CurrentRow - i_NewRow);
             short cols = (short)(i_CurrentCol - i_NewCol);
 
             //  UP              RIGHT
             if(rows == 1 && cols == -1)
             {
-                resultDirection = Engine.eDirection.UpRight;
+                resultDirection = eDirection.UpRight;
             }
 
             //  UP              LEFT
             if(rows == 1 && cols == 1)
             {
-                resultDirection = Engine.eDirection.UpLeft;
+                resultDirection = eDirection.UpLeft;
             }
 
             // DOWN             RIGHT
             if(rows == -1 && cols == -1)
             {
-                resultDirection = Engine.eDirection.DownRight;
+                resultDirection = eDirection.DownRight;
             }
 
             // DOWN            LEFT
             if(rows == -1 && cols == 1)
             {
-                resultDirection = Engine.eDirection.DownLeft;
+                resultDirection = eDirection.DownLeft;
             }
 
             return resultDirection;
         }
+
+
+
+
+
     }
 }
     

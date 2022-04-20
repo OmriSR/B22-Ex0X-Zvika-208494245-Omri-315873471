@@ -10,10 +10,10 @@ namespace Logic
         readonly eCellOwner r_player;
         short m_possibleMovesCount;
 
-        public Coin(eCellOwner i_player, short i_numOfPossibleMoves)
+        public Coin(eCellOwner i_Player, short i_NumOfPossibleMoves)
         {
-            r_player = i_player;
-            m_possibleMovesCount = i_numOfPossibleMoves;
+            r_player = i_Player;
+            m_possibleMovesCount = i_NumOfPossibleMoves;
         }
 
         public bool isKing
