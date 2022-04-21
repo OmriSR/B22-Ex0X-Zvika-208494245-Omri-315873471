@@ -11,7 +11,7 @@ namespace Logic
         /*??internal??*/ Cell[,] m_GameBoard; 
         public readonly short r_BoardSize;
         private readonly short m_numOfCoins;
-        Coin[] m_coinsPlayer1, m_coinsPlayer2;
+        Coin[] m_Player1CoinSet, m_Player2oinSet;
 
         private void initBoard(short i_BoardSize)
         {
@@ -53,7 +53,7 @@ namespace Logic
 
             initBoard(i_BoardSize);
         }
-
+        //------------- propertise -----------------------
         public Cell[,] gameBoard
         {
             get
@@ -76,70 +76,143 @@ namespace Logic
                 return m_coinsPlayer2;
             }
         }
+        //--------------------------------
 
-        private static Coin getCoinFromCell(Cell[,] i_Board, int i_Row, int i_Col)
+        private static Coin getCoinFromCell(Cell[,] i_Board, int i_Row, int i_Col)    // not needed
         {
             return i_Board[i_Row, i_Col].coin;
         }
 
+
         //------------- gameboard utilities ---------------------------
-        public Coin getNieghbourCoin(Coin i_Coin, eDirection oppDirection)
+        public Cell getNieghbourCell(Coin i_Coin, eDirection oppDirection)
         {
-            Coin neighbour;
+            Cell neighbour = null;
 
             switch (oppDirection)
             {
                 case eDirection.UpLeft:
-                    neighbour = m_GameBoard[i_Coin.row - 1, i_Coin.col - 1].coin;
+                    neighbour = m_GameBoard[i_Coin.row - 1, i_Coin.col - 1];
                     break;
 
                 case eDirection.UpRight:
-                    neighbour = m_GameBoard[i_Coin.row - 1, i_Coin.col + 1].coin;
+                    neighbour = m_GameBoard[i_Coin.row - 1, i_Coin.col + 1];
                     break;
 
                 case eDirection.DownLeft:
-                    neighbour = m_GameBoard[i_Coin.row + 1, i_Coin.col - 1].coin;
+                    neighbour = m_GameBoard[i_Coin.row + 1, i_Coin.col - 1];
                     break;
 
                 case eDirection.DownRight:
-                    neighbour = m_GameBoard[i_Coin.row + 1, i_Coin.col + 1].coin;
+                    neighbour = m_GameBoard[i_Coin.row + 1, i_Coin.col + 1];
                     break;
             }
 
             return neighbour;
         }
+
+
         //------------- check board cell for owner --------------------
-        public eCellOwner CheckUpRightCellOwner(short i_Col, short i_Row)
+        public Cell GetUpRightCell(short i_Col, short i_Row)
         {
-            eCellOwner playerInCell;
+            Cell upRightCell;
 
             if (m_GameBoard[i_Row, i_Col].coin.player == eCellOwner.Player2)
             {
-                playerInCell = m_GameBoard[i_Row + 1, i_Col - 1].coin.player;
+                upRightCell = m_GameBoard[i_Row + 1, i_Col - 1];
             }
             else
             {
-                playerInCell = m_GameBoard[i_Row - 1, i_Col + 1].coin.player;
+                upRightCell = m_GameBoard[i_Row - 1, i_Col + 1];
             }
 
-            return playerInCell;
+            return upRightCell;
         }
 
-        public eCellOwner CheckUpLeftCellOwner(short i_Col, short i_Row)
+        public Cell GetUpLeftCell(short i_Col, short i_Row)
         {
-            eCellOwner playerInCell;
-
+            Cell upLeftCell;
+            
             if (m_GameBoard[i_Row, i_Col].coin.player == eCellOwner.Player2)
             {
-                playerInCell = m_GameBoard[i_Row + 1, i_Col + 1].coin.player;
+                upLeftCell = m_GameBoard[i_Row + 1, i_Col + 1];
             }
             else
             {
-                playerInCell = m_GameBoard[i_Row - 1, i_Col - 1].coin.player;
+                upLeftCell = m_GameBoard[i_Row - 1, i_Col - 1];
             }
 
-            return playerInCell;
+            return upLeftCell;
         }
+
+
+        //-------------------- check for possible 'eat' moves on board -------
+        private List<Coin> getCoinsThatCanEat(eCellOwner i_CurPlayer)
+        {
+            List<Coin> coinsThatCanEat = new List<Coin>();
+
+            foreach (Coin coin in ((i_CurPlayer == eCellOwner.Player1) ? Player1CoinSet : Player2CoinSet))
+            {
+                if (canCoinEat(coin))
+                {
+                    coinsThatCanEat.Add(coin);
+                }
+
+                /* if(! coin.updatePossibleMoves(i_GameBoard))
+                 * {
+                 *      boolean out parameter that indicates their are moves to make (if he will return false, game over for player)
+                 */
+
+            }
+
+            return coinsThatCanEat;
+        }
+
+        public bool CanOtherCoinsEat(eCellOwner i_CurPlayer)
+        {
+            List<Coin> ableToEatCoins;
+            ableToEatCoins = getCoinsThatCanEat(i_CurPlayer);
+            return !(ableToEatCoins.Count > 0);
+        }
+
+        public bool CanCoinEat(Coin i_Coin)
+        {
+            eCellOwner upLeftCellOwner = GetUpLeftCell(i_Coin.col, i_Coin.row).coin.player;
+            eCellOwner upRighttCellOwner = GetUpRightCell(i_Coin.col, i_Coin.row).coin.player;
+            eCellOwner currentCoinOwner = i_Coin.player;
+            Coin oppCoin;
+
+            if (isCoinOpponentPlayer(currentCoinOwner, upRighttCellOwner))      // if opp to the right
+            {
+                oppCoin = getNieghbourCell(i_Coin, eDirection.UpRight).coin;        //check if clear after him
+                i_Coin.canEatRight = isEatingPassClear(oppCoin, eDirection.UpRight);
+            }
+
+            if (isCoinOpponentPlayer(currentCoinOwner, upLeftCellOwner))    // if opp to the left
+            {
+                oppCoin = getNieghbourCell(i_Coin, eDirection.UpLeft).coin;   // same
+                i_Coin.canEatLeft = isEatingPassClear(oppCoin, eDirection.UpLeft);
+            }
+
+            return (i_Coin.canEatRight || i_Coin.canEatLeft);
+        }
+
+        private bool isEatingPassClear(Coin i_CoinToEat, eDirection eatingDirection)
+        {
+            eDirection directionToCheck = mirorrDirection(eatingDirection);
+            return getNieghbourCell(i_CoinToEat, directionToCheck).isEmpty;
+        }
+
+        private eDirection mirorrDirection(eDirection dirToFlip)
+        {
+            return eDirection
+        }
+
+        private bool isCoinOpponentPlayer(eCellOwner i_CurrentPlayer, eCellOwner i_CellOwnerToCheck)
+        {
+            return (i_CellOwnerToCheck != i_CurrentPlayer && i_CellOwnerToCheck != eCellOwner.Empty);
+        }
+
 
         //-------------------printing methods---------------------------
         public void PrintBoard(Cell[,] i_GameBoard, short i_GameSize)

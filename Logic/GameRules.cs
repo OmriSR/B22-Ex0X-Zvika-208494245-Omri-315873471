@@ -156,10 +156,7 @@ namespace Logic
             return isNextMoveValid;
         }
 
-        private static bool checkNewPositionIsNotOutOfBounds(GameBoard i_GameBoard, short i_NewRow, short i_NewCol)
-        {
-            return i_NewRow >= 0 && i_NewCol < i_GameBoard.r_BoardSize;
-        }
+
 
 
 
