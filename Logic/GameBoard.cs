@@ -8,11 +8,15 @@ namespace Logic
 {
     class GameBoard
     {
-        private Cell[,] m_GameBoard; 
+        /*??internal??*/ Cell[,] m_GameBoard; 
         public readonly short r_BoardSize;
+        private readonly short m_numOfCoins;
+        Coin[] m_coinsPlayer1, m_coinsPlayer2;
 
         private void initBoard(short i_BoardSize)
         {
+            short coinsCounter = 0;
+
             for (short row = 0; row < i_BoardSize; row++)
             {
                 for (short col = 0; col < i_BoardSize; col++)
@@ -20,11 +24,15 @@ namespace Logic
                     if ((row < (i_BoardSize / 2) - 1) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Player2, col, row, r_BoardSize);
+                        m_coinsPlayer2[coinsCounter++] = m_GameBoard[row, col].coin;
+
                     }
 
                     else if (row > (i_BoardSize / 2) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Player1, col, row, r_BoardSize);
+                        m_coinsPlayer1[coinsCounter++ - m_numOfCoins] = m_GameBoard[row, col].coin;
+
                     }
 
                     else
@@ -39,15 +47,11 @@ namespace Logic
         {
             r_BoardSize = i_BoardSize;
             m_GameBoard = new Cell[r_BoardSize, r_BoardSize];
+            m_numOfCoins = Convert.ToInt16(r_BoardSize / 2 * (r_BoardSize / -1));
+            m_coinsPlayer1 = new Coin[m_numOfCoins / 2];
+            m_coinsPlayer2 = new Coin[m_numOfCoins / 2];
+
             initBoard(i_BoardSize);
-        }
-
-        internal short CountPossibleMoves(Cell i_cell)
-        {
-            
-
-
-            return 0;
         }
 
         public Cell[,] gameBoard
@@ -58,10 +62,86 @@ namespace Logic
             }
         }
 
+        public Coin[] Player1CoinSet
+        {
+            get
+            {
+                return m_coinsPlayer1;
+            }
+        }
+        public Coin[] Player2CoinSet
+        {
+            get
+            {
+                return m_coinsPlayer2;
+            }
+        }
+
         private static Coin getCoinFromCell(Cell[,] i_Board, int i_Row, int i_Col)
         {
             return i_Board[i_Row, i_Col].coin;
         }
+
+        //------------- gameboard utilities ---------------------------
+        public Coin getNieghbourCoin(Coin i_Coin, eDirection oppDirection)
+        {
+            Coin neighbour;
+
+            switch (oppDirection)
+            {
+                case eDirection.UpLeft:
+                    neighbour = m_GameBoard[i_Coin.row - 1, i_Coin.col - 1].coin;
+                    break;
+
+                case eDirection.UpRight:
+                    neighbour = m_GameBoard[i_Coin.row - 1, i_Coin.col + 1].coin;
+                    break;
+
+                case eDirection.DownLeft:
+                    neighbour = m_GameBoard[i_Coin.row + 1, i_Coin.col - 1].coin;
+                    break;
+
+                case eDirection.DownRight:
+                    neighbour = m_GameBoard[i_Coin.row + 1, i_Coin.col + 1].coin;
+                    break;
+            }
+
+            return neighbour;
+        }
+        //------------- check board cell for owner --------------------
+        public eCellOwner CheckUpRightCellOwner(short i_Col, short i_Row)
+        {
+            eCellOwner playerInCell;
+
+            if (m_GameBoard[i_Row, i_Col].coin.player == eCellOwner.Player2)
+            {
+                playerInCell = m_GameBoard[i_Row + 1, i_Col - 1].coin.player;
+            }
+            else
+            {
+                playerInCell = m_GameBoard[i_Row - 1, i_Col + 1].coin.player;
+            }
+
+            return playerInCell;
+        }
+
+        public eCellOwner CheckUpLeftCellOwner(short i_Col, short i_Row)
+        {
+            eCellOwner playerInCell;
+
+            if (m_GameBoard[i_Row, i_Col].coin.player == eCellOwner.Player2)
+            {
+                playerInCell = m_GameBoard[i_Row + 1, i_Col + 1].coin.player;
+            }
+            else
+            {
+                playerInCell = m_GameBoard[i_Row - 1, i_Col - 1].coin.player;
+            }
+
+            return playerInCell;
+        }
+
+        //-------------------printing methods---------------------------
         public void PrintBoard(Cell[,] i_GameBoard, short i_GameSize)
         {
             short currentCol = 0;

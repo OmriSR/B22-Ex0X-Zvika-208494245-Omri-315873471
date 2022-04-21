@@ -6,14 +6,41 @@ namespace Logic
 {
     class Coin
     {
+        short m_row, m_col;
         bool m_isKing = false;
         readonly eCellOwner r_player;
         short m_possibleMovesCount;
 
-        public Coin(eCellOwner i_Player, short i_NumOfPossibleMoves)
+        public Coin(eCellOwner i_Player, short i_NumOfPossibleMoves,short i_col, short i_row)
         {
+            m_row = i_row;
+            m_col = i_col;
             r_player = i_Player;
             m_possibleMovesCount = i_NumOfPossibleMoves;
+        }
+
+        public short col
+        {
+            get
+            {
+                return m_col;
+            }
+            set
+            {
+                m_row = value;
+            }
+        }
+
+        public short row
+        {
+            get
+            {
+                return m_row;
+            }
+            set
+            {
+                m_row = value;
+            }
         }
 
         public bool isKing

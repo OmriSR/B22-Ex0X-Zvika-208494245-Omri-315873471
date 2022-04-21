@@ -16,9 +16,10 @@ namespace Logic
             return (i_CharToCheck >= 'a' && i_CharToCheck <= 'z');
         }
 
-        private bool isValidInput(string i_UserInput)
+        public bool IsValidInput(string i_UserInput, out bool o_singleLetter)
         {
             bool isValid = false;
+            o_singleLetter = false;
 
             if (i_UserInput.Length == 5)
             {
@@ -31,17 +32,19 @@ namespace Logic
 
             else if(i_UserInput.Length == 1)
             {
+                o_singleLetter = true;
                 isValid = isCapitalLetter(i_UserInput[0]) || islowerCaseLetter(i_UserInput[0]);
             }
 
             return isValid;
         }
 
-        private bool checkIfQuit(string i_UserInput)
+        public bool CheckIfQuit(string i_UserInput)          
         {
             return (i_UserInput[0] == 'q' || i_UserInput[0] == 'Q');
         }
 
+      
         private void translateCharPositionToIndices(string i_CharPos, ref short o_col, ref short o_row)
         {
             o_col = Convert.ToInt16(i_CharPos[0] - 'A');

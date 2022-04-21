@@ -14,25 +14,19 @@ namespace Logic
         public void StartGame(short boardSize)
         {
             GameBoard gameBoard = new GameBoard(boardSize);
+            bool isSingleLetter;
+            string COLrow;
 
             while (m_toQuit == false)
             {
-
                 // whos turn is it?
+                COLrow = getMoveUI(out isSingleLetter);
+                m_toQuit = isSingleLetter && m_inputChecker.CheckIfQuit(COLrow);   
+                
+                if(!m_toQuit)
+                {
 
-                string COLrow = getMove();
-
-             //   if ( m_inputChecker.IsValidInput(COLrow) == false )
-            //    {
-                    /* a method containing a loop of getMove() until it is corrected*/  //omri
-           //     }
-
-            //    if (m_inputChecker.CheckIfQuit(COLrow) == true)
-            //    {
-            //        m_toQuit = false;
-           //     }
-
-            //    else
+                }
            //     {
                     // any valid moves left? if not - its a tie  ---- checkIfTie method  
                     //can coin eat?     ---- canCoinEat method
@@ -43,14 +37,19 @@ namespace Logic
             }
         }
 
-
-        private string getMove()
+        /*UI method!*/
+        private string getMoveUI(out bool o_isSingleLetter)
         {
-            /*get move from UI
-              translate given move to indices
-              assign via output parametters new pos*/
+            Console.WriteLine("Please enter input....");
+            string COLrow = Console.ReadLine();
 
-            return "needs to be implimented";
+            while (m_inputChecker.IsValidInput(COLrow, out o_isSingleLetter) == false)
+            {
+                Console.WriteLine("Invalid input! please try again");
+                COLrow = getMoveUI(out o_isSingleLetter);
+            }
+
+            return COLrow;
         }
 
 
@@ -59,7 +58,7 @@ namespace Logic
         {
             i_GameBoard[i_OldRow, i_OldCol].isEmpty = true;
             i_GameBoard[i_NewRow, i_NewCol].isEmpty = false;
-            i_GameBoard[i_NewRow, i_NewCol].coin = i_Player;
+            i_GameBoard[i_NewRow, i_NewCol].coin = i_Player;   //???
         }
 
 
@@ -75,10 +74,56 @@ namespace Logic
             i_GameBoard[i_Row, i_Col].coin.isKing = true;
         }
 
-        public bool ValidBoardSize(string i_UserInput)
+        public bool ValidBoardSize(string i_UserInput)   
         {
             return (i_UserInput != "1" && i_UserInput != "2" && i_UserInput != "3");
         }
 
+        private List<Coin> getCoinsThatCanEat(GameBoard i_GameBoard)
+        {
+            List<Coin> coinsThatCanEat = new List<Coin>();
+
+            foreach (Coin coin in i_GameBoard.Player1CoinSet)
+            {
+                if(canCoinEat(i_GameBoard, coin))
+                {
+                    coinsThatCanEat.Add(coin);
+                }
+            }
+
+            return coinsThatCanEat;
+        }
+
+        private bool canCoinEat(GameBoard i_Gameboard, Coin i_Coin)
+        {
+            eCellOwner upLeftCellOwner = i_Gameboard.CheckUpLeftCellOwner(i_Coin.col, i_Coin.row);
+            eCellOwner upRighttCellOwner = i_Gameboard.CheckUpRightCellOwner(i_Coin.col, i_Coin.row);
+            eCellOwner currentCoinOwner = i_Coin.player;
+            Coin oppCoin;
+            bool canEat;
+
+            if (isCoinOpponentPlayer(currentCoinOwner,upRighttCellOwner))      // if opp to the right
+            {
+                oppCoin = i_Gameboard.getNieghbourCoin(i_Coin, eDirection.UpRight);        //check if clear after him
+                canEat = (i_Gameboard.CheckUpRightCellOwner(oppCoin.col, oppCoin.row) == eCellOwner.Empty);
+            }
+
+            if (isCoinOpponentPlayer(currentCoinOwner, upLeftCellOwner))    // if opp to the left
+            { 
+                oppCoin = i_Gameboard.getNieghbourCoin(i_Coin, eDirection.UpLeft);   // same
+                canEat = (i_Gameboard.CheckUpLeftCellOwner(oppCoin.col, oppCoin.row) == eCellOwner.Empty);
+            }
+
+            return true;
+        }
+        
+        private bool isEatingBlocked(Coin i_CoinToEat, eDirection eatingDirection)
+        {
+            return true;
+        }
+        private bool isCoinOpponentPlayer(eCellOwner i_CurrentPlayer, eCellOwner i_CellOwnerToCheck)
+        {
+            return (i_CellOwnerToCheck != i_CurrentPlayer && i_CellOwnerToCheck != eCellOwner.Empty);
+        }
     }
 }
