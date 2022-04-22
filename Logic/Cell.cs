@@ -7,10 +7,10 @@ namespace Logic
     public enum eCellOwner { Empty, Player1, Player2 };
 
     class Cell
-    {
-        //short m_row, m_col;
+    { 
+        short m_row, m_col;
         bool m_isEmpty;
-        Coin m_coin;
+        Coin m_coin = null;
 
         public Cell( eCellOwner i_CellOwner, short i_Col, short i_Row, short i_BoardSize)
         {
@@ -19,8 +19,31 @@ namespace Logic
             if (!m_isEmpty)
             {
                 short possibleMovesCount = countInitialPossibleMovesFromCell(i_Col, i_Row, i_BoardSize);
+                m_coin = new Coin(i_CellOwner, possibleMovesCount,i_Col,i_Row);
+            }
+        }
 
-                m_coin = new Coin(i_CellOwner, possibleMovesCount);
+        public short Col
+        {
+            get
+            {
+                return m_col;
+            }
+            set
+            {
+                m_row = value;
+            }
+        }
+
+        public short Row
+        {
+            get
+            {
+                return m_row;
+            }
+            set
+            {
+                m_row = value;
             }
         }
 
@@ -35,7 +58,7 @@ namespace Logic
             return ((i_Col == (i_BoardSize - 1)) || (i_Col == 0));
         }
 
-        short countInitialPossibleMovesFromCell(short i_Col, short i_Row, short i_BoardSize)
+        private short countInitialPossibleMovesFromCell(short i_Col, short i_Row, short i_BoardSize)
         {
             short possibleMoves = 0;
 
@@ -47,7 +70,7 @@ namespace Logic
             return possibleMoves;
         }
 
-        public Coin coin
+        public Coin Coin
         {
             get
             {
@@ -59,7 +82,7 @@ namespace Logic
             }
         }
 
-        public bool isEmpty
+        public bool IsEmpty
         {
             get
             {
