@@ -9,9 +9,8 @@ namespace Logic
         short m_row, m_col;
         bool m_isKing = false;
         readonly eCellOwner r_player;
-        bool m_canEatLeft, m_canEatRight;
-        
-        short m_possibleMovesCount;
+        bool m_canEatUpLeft, m_canEatUpRight, m_canEatDownRight, m_canEatDownLeft;
+        bool m_GotMoves;
 
         public Coin(eCellOwner i_Player, short i_NumOfPossibleMoves,short i_col, short i_row)
         {
@@ -19,32 +18,63 @@ namespace Logic
             m_col = i_col;
             r_player = i_Player;
             m_possibleMovesCount = i_NumOfPossibleMoves;
-            m_canEatLeft = m_canEatRight = false;
+            m_canEat = new bool[4];
+            m_canEatUpLeft = m_canEatUpRight = m_canEatDownRight = m_canEatDownLeft = false;
         }
 
-        public bool canEatLeft
+        //----------- properties ----------------
+
+        public bool CanEatDownRight
         {
             get
             {
-                return m_canEatLeft;
+                return m_canEatDownRight;
             }
             set
             {
-                m_canEatLeft = value;
+                m_canEatDownRight = value;
             }
         }
-        public bool canEatRight
+
+
+        public bool CanEatDownLeft
         {
             get
             {
-                return m_canEatRight;
+                return m_canEatDownLeft;
             }
             set
             {
-                m_canEatRight = value;
+                m_canEatDownLeft = value;
             }
         }
-        public short col
+
+
+        public bool CanEatUpLeft
+        {
+            get
+            {
+                return m_canEatUpLeft;
+            }
+            set
+            {
+                m_canEatUpLeft = value;
+            }
+        }
+
+        public bool CanEatUpRight
+        {
+            get
+            {
+                return m_canEatUpRight;
+            }
+            set
+            {
+                m_canEatUpRight = value;
+            }
+        }
+
+        public short Col
         {
             get
             {
@@ -56,7 +86,7 @@ namespace Logic
             }
         }
 
-        public short row
+        public short Row
         {
             get
             {
@@ -68,7 +98,7 @@ namespace Logic
             }
         }
 
-        public bool isKing
+        public bool IsKing
         {
             get
             {
@@ -80,25 +110,34 @@ namespace Logic
             }
         }
 
-        public short possibleMoveCount
+        public bool GotMoves
         {
             get
             {
-                return m_possibleMovesCount;
+                return m_GotMoves;
             }
             set
             {
-                m_possibleMovesCount = value;
+                m_GotMoves = value;
             }
         }
 
-        public eCellOwner player
+        public eCellOwner Player
         {
             get
             {
                 return r_player;
             }
         }
+
+        //------------------------------
+
+
+
+
+
+
+
 
         
     }

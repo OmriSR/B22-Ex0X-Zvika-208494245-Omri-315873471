@@ -8,10 +8,10 @@ namespace Logic
 {
     class GameBoard
     {
-        /*??internal??*/ Cell[,] m_GameBoard; 
+        private Cell[,] m_GameBoard; 
         public readonly short r_BoardSize;
         private readonly short m_numOfCoins;
-        Coin[] m_Player1CoinSet, m_Player2oinSet;
+        Coin[] m_Player1CoinSet, m_Player2CoinSet;
 
         private void initBoard(short i_BoardSize)
         {
@@ -24,14 +24,14 @@ namespace Logic
                     if ((row < (i_BoardSize / 2) - 1) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Player2, col, row, r_BoardSize);
-                        m_coinsPlayer2[coinsCounter++] = m_GameBoard[row, col].coin;
+                        m_Player2CoinSet[coinsCounter++] = m_GameBoard[row, col].Coin;
 
                     }
 
                     else if (row > (i_BoardSize / 2) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Player1, col, row, r_BoardSize);
-                        m_coinsPlayer1[coinsCounter++ - m_numOfCoins] = m_GameBoard[row, col].coin;
+                        m_Player1CoinSet[coinsCounter++ - m_numOfCoins] = m_GameBoard[row, col].Coin;
 
                     }
 
@@ -43,18 +43,20 @@ namespace Logic
             }
         }
 
-        public GameBoard(short i_BoardSize) // We assume that board size is valid
+        public GameBoard(short i_BoardSize) 
         {
             r_BoardSize = i_BoardSize;
             m_GameBoard = new Cell[r_BoardSize, r_BoardSize];
             m_numOfCoins = Convert.ToInt16(r_BoardSize / 2 * (r_BoardSize / -1));
-            m_coinsPlayer1 = new Coin[m_numOfCoins / 2];
-            m_coinsPlayer2 = new Coin[m_numOfCoins / 2];
+            m_Player1CoinSet = new Coin[m_numOfCoins / 2];
+            m_Player2CoinSet = new Coin[m_numOfCoins / 2];
 
             initBoard(i_BoardSize);
         }
+
         //------------- propertise -----------------------
-        public Cell[,] gameBoard
+
+        public Cell[,] Board
         {
             get
             {
@@ -69,6 +71,7 @@ namespace Logic
                 return m_coinsPlayer1;
             }
         }
+
         public Coin[] Player2CoinSet
         {
             get
@@ -76,136 +79,149 @@ namespace Logic
                 return m_coinsPlayer2;
             }
         }
-        //--------------------------------
 
-        private static Coin getCoinFromCell(Cell[,] i_Board, int i_Row, int i_Col)    // not needed
-        {
-            return i_Board[i_Row, i_Col].coin;
-        }
+        //------------- Check Neighbour Board Cell -------------------------
 
-
-        //------------- gameboard utilities ---------------------------
-        public Cell getNieghbourCell(Coin i_Coin, eDirection oppDirection)
+        public Cell GetSubjectiveNeighbourCell(Coin i_Coin, eDirection i_Direction) // moving buttom to top
         {
             Cell neighbour = null;
+            eDirection subjectiveDirection = GetSubjectiveDirection(i_Direction, i_Coin.Player);
 
-            switch (oppDirection)
+            switch (subjectiveDirection)
             {
                 case eDirection.UpLeft:
-                    neighbour = m_GameBoard[i_Coin.row - 1, i_Coin.col - 1];
+                    neighbour = m_GameBoard[i_Coin.Row - 1, i_Coin.Col - 1];
                     break;
 
                 case eDirection.UpRight:
-                    neighbour = m_GameBoard[i_Coin.row - 1, i_Coin.col + 1];
+                    neighbour = m_GameBoard[i_Coin.Row - 1, i_Coin.Col + 1];
                     break;
 
                 case eDirection.DownLeft:
-                    neighbour = m_GameBoard[i_Coin.row + 1, i_Coin.col - 1];
+                    neighbour = m_GameBoard[i_Coin.Row + 1, i_Coin.Col - 1];
                     break;
 
                 case eDirection.DownRight:
-                    neighbour = m_GameBoard[i_Coin.row + 1, i_Coin.col + 1];
+                    neighbour = m_GameBoard[i_Coin.Row + 1, i_Coin.Col + 1];
                     break;
             }
 
             return neighbour;
-        }
+        }   
 
-
-        //------------- check board cell for owner --------------------
-        public Cell GetUpRightCell(short i_Col, short i_Row)
+        public eDirection GetSubjectiveDirection(eDirection i_SubjectiveDirection, eCellOwner i_CurrentPlayer)
         {
-            Cell upRightCell;
-
-            if (m_GameBoard[i_Row, i_Col].coin.player == eCellOwner.Player2)
-            {
-                upRightCell = m_GameBoard[i_Row + 1, i_Col - 1];
-            }
-            else
-            {
-                upRightCell = m_GameBoard[i_Row - 1, i_Col + 1];
-            }
-
-            return upRightCell;
+            return (i_CurrentPlayer == eCellOwner.Player1) ? i_SubjectiveDirection : mirrorDirection(i_SubjectiveDirection);
         }
 
-        public Cell GetUpLeftCell(short i_Col, short i_Row)
+        private eDirection mirrorDirection(eDirection dirToFlip)    // for moving player2 coins ( he moves Top to Buttom )
         {
-            Cell upLeftCell;
-            
-            if (m_GameBoard[i_Row, i_Col].coin.player == eCellOwner.Player2)
-            {
-                upLeftCell = m_GameBoard[i_Row + 1, i_Col + 1];
-            }
-            else
-            {
-                upLeftCell = m_GameBoard[i_Row - 1, i_Col - 1];
-            }
+            eDirection mirroredDic;
 
-            return upLeftCell;
+            switch (dirToFlip)
+            {
+                case eDirection.DownLeft:
+                    mirroredDic = eDirection.UpRight;
+                    break;
+                case eDirection.DownRight:
+                    mirroredDic = eDirection.UpLeft;
+                    break;
+                case eDirection.UpLeft:
+                    mirroredDic = eDirection.DownRight;
+                    break;
+                case eDirection.UpRight:
+                    mirroredDic = eDirection.DownLeft;
+                    break;
+                default:
+                    mirroredDic = eDirection.NullDirection;
+                    break;
+            }
+            return mirroredDic;
         }
 
+        //----------- Check for possible 'eat' moves on board -----------
 
-        //-------------------- check for possible 'eat' moves on board -------
         private List<Coin> getCoinsThatCanEat(eCellOwner i_CurPlayer)
         {
             List<Coin> coinsThatCanEat = new List<Coin>();
 
             foreach (Coin coin in ((i_CurPlayer == eCellOwner.Player1) ? Player1CoinSet : Player2CoinSet))
             {
-                if (canCoinEat(coin))
+                if (CanCoinEat(coin))
                 {
                     coinsThatCanEat.Add(coin);
+                    coin.GotMoves = true;
                 }
-
-                /* if(! coin.updatePossibleMoves(i_GameBoard))
-                 * {
-                 *      boolean out parameter that indicates their are moves to make (if he will return false, game over for player)
-                 */
-
             }
 
             return coinsThatCanEat;
         }
 
+
+
         public bool CanOtherCoinsEat(eCellOwner i_CurPlayer)
         {
             List<Coin> ableToEatCoins;
             ableToEatCoins = getCoinsThatCanEat(i_CurPlayer);
-            return !(ableToEatCoins.Count > 0);
+            return (ableToEatCoins.Count > 0);
+        }
+
+        private bool canKingCoinEat(Coin i_Coin)
+        {
+            Cell downLeftCell = GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft);
+            Cell downRightCell = GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight);
+            eCellOwner currentCoinOwner = i_Coin.Player;
+            Coin oppCoin;
+
+            if (isCoinOpponentPlayer(currentCoinOwner, downRightCell.Coin.Player))
+            {
+                oppCoin = downRightCell.Coin;
+                i_Coin.CanEatDownRight = isEatingPassClear(oppCoin, eDirection.DownRight);
+            }
+
+            if (isCoinOpponentPlayer(currentCoinOwner, downLeftCell.Coin.Player))
+            {
+                oppCoin = downLeftCell.Coin;
+                i_Coin.CanEatDownLeft = isEatingPassClear(oppCoin, eDirection.DownLeft);
+            }
+
+            return i_Coin.CanEatDownLeft || i_Coin.CanEatDownRight;
+        }
+
+        private bool canRegularCoinEat(Coin i_Coin)
+        {
+            Cell upLeftCell = GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft);
+            Cell upRightCell = GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight);
+            eCellOwner currentCoinOwner = i_Coin.Player;
+            Coin oppCoin;
+
+            if (isCoinOpponentPlayer(currentCoinOwner, upRightCell.Coin.Player))                    // if opp to the right
+            {
+                oppCoin = upRightCell.Coin;                                                       // check if clear after him
+                i_Coin.CanEatUpRight = isEatingPassClear(oppCoin, eDirection.UpRight);
+            }
+
+            if (isCoinOpponentPlayer(currentCoinOwner, upLeftCell.Coin.Player))                      // if opp to the left
+            {
+                oppCoin = upLeftCell.Coin;
+                i_Coin.CanEatUpLeft = isEatingPassClear(oppCoin, eDirection.UpLeft);
+            }
+
+            return (i_Coin.CanEatUpRight || i_Coin.CanEatUpLeft);
+
         }
 
         public bool CanCoinEat(Coin i_Coin)
         {
-            eCellOwner upLeftCellOwner = GetUpLeftCell(i_Coin.col, i_Coin.row).coin.player;
-            eCellOwner upRighttCellOwner = GetUpRightCell(i_Coin.col, i_Coin.row).coin.player;
-            eCellOwner currentCoinOwner = i_Coin.player;
-            Coin oppCoin;
-
-            if (isCoinOpponentPlayer(currentCoinOwner, upRighttCellOwner))      // if opp to the right
-            {
-                oppCoin = getNieghbourCell(i_Coin, eDirection.UpRight).coin;        //check if clear after him
-                i_Coin.canEatRight = isEatingPassClear(oppCoin, eDirection.UpRight);
-            }
-
-            if (isCoinOpponentPlayer(currentCoinOwner, upLeftCellOwner))    // if opp to the left
-            {
-                oppCoin = getNieghbourCell(i_Coin, eDirection.UpLeft).coin;   // same
-                i_Coin.canEatLeft = isEatingPassClear(oppCoin, eDirection.UpLeft);
-            }
-
-            return (i_Coin.canEatRight || i_Coin.canEatLeft);
+            bool canEat = canRegularCoinEat(i_Coin);
+            canEat = i_Coin.IsKing ? canKingCoinEat(i_Coin) : canEat;
+            return canEat;
         }
 
         private bool isEatingPassClear(Coin i_CoinToEat, eDirection eatingDirection)
         {
-            eDirection directionToCheck = mirorrDirection(eatingDirection);
-            return getNieghbourCell(i_CoinToEat, directionToCheck).isEmpty;
-        }
-
-        private eDirection mirorrDirection(eDirection dirToFlip)
-        {
-            return eDirection
+            eDirection directionToCheck = mirrorDirection(eatingDirection);
+            return GetSubjectiveNeighbourCell(i_CoinToEat, eatingDirection).IsEmpty;
         }
 
         private bool isCoinOpponentPlayer(eCellOwner i_CurrentPlayer, eCellOwner i_CellOwnerToCheck)
@@ -215,6 +231,7 @@ namespace Logic
 
 
         //-------------------printing methods---------------------------
+
         public void PrintBoard(Cell[,] i_GameBoard, short i_GameSize)
         {
             short currentCol = 0;
@@ -255,7 +272,7 @@ namespace Logic
                     colCheck--;
                 }
 
-                if(!i_GameBoard[rowCheck, colCheck].isEmpty && i_Col % 4 == 3)
+                if(!i_GameBoard[rowCheck, colCheck].IsEmpty && i_Col % 4 == 3)
                 {
                     didPrint = printCoinsOnBoard(i_GameBoard, rowCheck, colCheck);
                 }
@@ -267,9 +284,9 @@ namespace Logic
         private bool printCoinsOnBoard(Cell[,] i_GameBoard, short i_RowToCheck, short i_ColToCheck)
         {
             bool didPrint = false;
-            if (i_GameBoard[i_RowToCheck, i_ColToCheck].coin.player == eCellOwner.Player1)
+            if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player1)
             {
-                if (i_GameBoard[i_RowToCheck, i_ColToCheck].coin.isKing)
+                if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
                 {
                     Console.Write('K');
                 }
@@ -280,9 +297,9 @@ namespace Logic
 
                 didPrint = true;
             }
-            else if (i_GameBoard[i_RowToCheck, i_ColToCheck].coin.player == eCellOwner.Player2)
+            else if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player2)
             {
-                if (i_GameBoard[i_RowToCheck, i_ColToCheck].coin.isKing)
+                if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
                 {
                     Console.Write('U');
                 }

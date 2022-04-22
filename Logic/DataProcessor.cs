@@ -4,9 +4,10 @@ using System.Text;
 
 namespace Logic
 {
-    class DataProcessor  // input handler --- with help from game rules for validation
+    class DataProcessor  
     {
         //----------- initial input validation ---------------------
+
         private bool isCapitalLetter(char i_CharToCheck)
         {
             return (i_CharToCheck >= 'A' && i_CharToCheck <= 'Z');
@@ -69,10 +70,10 @@ namespace Logic
             o_dstCell = board[dstCol, dstRow];
         }
 
-        public void GetInputAndTranslateToCells(Cell[,] i_Board, out Cell o_CurCell, out Cell o_DstCell)     // UI metod is used!!! handle it
+        public void GetInputAndTranslateToCells(Cell[,] i_Board, out Cell o_CurCell, out Cell o_DstCell)     
         {
             bool toQuit;
-            string COLrow = getMoveUI(out toQuit);
+            string COLrow = getMoveUI(out toQuit);           // UI metod is used!!! handle it
             translateInputToCells(i_Board, COLrow, out o_CurCell, out o_DstCell);
         }
 
@@ -80,26 +81,23 @@ namespace Logic
 
         public bool MoveValidation(GameBoard i_GameBoard, Cell i_SrcCell, Cell i_DstCell, eCellOwner i_CurPlayer)
         {
-            bool moveInBounds = isMoveInBoardBounds(i_SrcCell, i_DstCell, i_GameBoard.r_BoardSize);                       // move is in board
-            bool srcCellIsOwnedByCurrentPlayer = i_SrcCell.coin.player == i_CurPlayer;
-            bool dstCellIsntOwnedByCurrentPlayer = i_DstCell.coin.player != i_CurPlayer;         //  source cell current players coin and dest is empty/opp coin
-            bool srcCoinCanEatOrNoCoinCan = (i_GameBoard.CanCoinEat(i_SrcCell.coin) || i_GameBoard.CanOtherCoinsEat(i_CurPlayer));  //   if I cant eat and no one else can it --> it is a valid move
+            bool moveInBounds = isMoveInBoardBounds(i_SrcCell, i_DstCell, i_GameBoard.r_BoardSize);                                    // move is in board
+            bool srcCellIsOwnedByCurrentPlayer = i_SrcCell.Coin.Player == i_CurPlayer;  
+            bool dstCellIsntOwnedByCurrentPlayer = i_DstCell.Coin.Player != i_CurPlayer;                                             //  source cell current players coin and dest is empty/opp coin
 
-            bool validMove = moveInBounds && srcCellIsOwnedByCurrentPlayer && dstCellIsntOwnedByCurrentPlayer 
-                              && srcCoinCanEatOrNoCoinCan;
-
-            return validMove;
+            return (moveInBounds && srcCellIsOwnedByCurrentPlayer && dstCellIsntOwnedByCurrentPlayer);           
         }
 
+        
         private bool isMoveInBoardBounds(Cell i_srcCell,Cell i_dstCell, short i_BoardSize)
         {
             return (isCellInBoardBounds(i_srcCell, i_BoardSize) && isCellInBoardBounds(i_dstCell, i_BoardSize));
         }
 
-        private static bool isCellInBoardBounds(Cell i_Cell, short i_BoardSize)
+        private bool isCellInBoardBounds(Cell i_Cell, short i_BoardSize)
         {
-            bool colSizeValid = i_Cell.col >= 0 && i_Cell.col < i_BoardSize;
-            bool rowSizeValid = i_Cell.row >= 0 && i_Cell.row < i_BoardSize;
+            bool colSizeValid = i_Cell.Col >= 0 && i_Cell.Col < i_BoardSize;
+            bool rowSizeValid = i_Cell.Row >= 0 && i_Cell.Row < i_BoardSize;
 
             return (colSizeValid && rowSizeValid);
         }
