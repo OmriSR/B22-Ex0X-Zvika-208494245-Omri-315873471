@@ -66,14 +66,19 @@ namespace Logic
             translatePositionToIndices(positions[0], out curCol, out curRow);
             translatePositionToIndices(positions[1], out dstCol, out dstRow);
 
-            o_curCell = board[curCol, curRow];
-            o_dstCell = board[dstCol, dstRow];
+            o_curCell = board[curRow, curCol];
+            o_curCell.Row = curRow;
+            o_curCell.Col = curCol;
+            o_dstCell = board[dstRow, dstCol];
+            o_dstCell.Row = dstRow;
+            o_dstCell.Col = dstCol;
         }
 
-        public void GetInputAndTranslateToCells(Cell[,] i_Board, out Cell o_CurCell, out Cell o_DstCell)     
+        public void GetInputAndTranslateToCells(Cell[,] i_Board, out Cell o_CurCell, out Cell o_DstCell)
         {
+            Engine testToDelete = new Engine();
             bool toQuit;
-            string COLrow = getMoveUI(out toQuit);           // UI metod is used!!! handle it
+            string COLrow = testToDelete.getMoveUI(out toQuit);           // UI method is used!!! handle it
             translateInputToCells(i_Board, COLrow, out o_CurCell, out o_DstCell);
         }
 
@@ -81,15 +86,27 @@ namespace Logic
 
         public bool MoveValidation(GameBoard i_GameBoard, Cell i_SrcCell, Cell i_DstCell, eCellOwner i_CurPlayer)
         {
-            bool moveInBounds = isMoveInBoardBounds(i_SrcCell, i_DstCell, i_GameBoard.r_BoardSize);                                    // move is in board
-            bool srcCellIsOwnedByCurrentPlayer = i_SrcCell.Coin.Player == i_CurPlayer;  
-            bool dstCellIsntOwnedByCurrentPlayer = i_DstCell.Coin.Player != i_CurPlayer;                                             //  source cell current players coin and dest is empty/opp coin
+            bool moveInBounds = IsMoveInBoardBounds(i_SrcCell, i_DstCell, i_GameBoard.r_BoardSize); // move is in board
+            bool srcCellIsOwnedByCurrentPlayer = false;
+            bool dstCellIsntOwnedByCurrentPlayer = true;
+            bool moveIsDiagonalizedAndValid = checkSourceAndDstValidMove(i_GameBoard, i_SrcCell, i_DstCell, i_CurPlayer);
+            //  source cell current players coin and dest is empty/opp coin
+            if(!i_SrcCell.IsEmpty)
+            {
+                srcCellIsOwnedByCurrentPlayer = i_SrcCell.Coin.Player == i_CurPlayer;
+            }
 
-            return (moveInBounds && srcCellIsOwnedByCurrentPlayer && dstCellIsntOwnedByCurrentPlayer);           
+            if(!i_DstCell.IsEmpty)
+            {
+                dstCellIsntOwnedByCurrentPlayer = i_DstCell.Coin.Player != i_CurPlayer;
+            }
+
+            
+            return (moveInBounds && srcCellIsOwnedByCurrentPlayer && dstCellIsntOwnedByCurrentPlayer && moveIsDiagonalizedAndValid);           
         }
 
         
-        private bool isMoveInBoardBounds(Cell i_srcCell,Cell i_dstCell, short i_BoardSize)
+        public bool IsMoveInBoardBounds(Cell i_srcCell,Cell i_dstCell, short i_BoardSize)
         {
             return (isCellInBoardBounds(i_srcCell, i_BoardSize) && isCellInBoardBounds(i_dstCell, i_BoardSize));
         }
@@ -100,6 +117,54 @@ namespace Logic
             bool rowSizeValid = i_Cell.Row >= 0 && i_Cell.Row < i_BoardSize;
 
             return (colSizeValid && rowSizeValid);
+        }
+
+        private bool checkSourceAndDstValidMove(GameBoard i_GameBoard, Cell i_SrcCell, Cell i_DstCell, eCellOwner i_PlayerNum)
+        {
+            bool moveIsValid = false;
+            short playerNum = -1;
+            short srcRow = i_SrcCell.Row, srcCol= i_SrcCell.Col;
+            short dstRow = i_DstCell.Row, dstCol = i_DstCell.Col;
+            if(i_PlayerNum == eCellOwner.Player1) // player1 = 1, player2 = -1
+            {
+                playerNum = 1;
+            }
+
+
+            if((srcRow - dstRow == -2 && srcCol - dstCol == -2) || (srcRow - dstRow == -2 && srcCol - dstCol == 2))
+            {
+                if(playerNum == -1 || i_SrcCell.Coin.IsKing)
+                {
+                    moveIsValid = i_GameBoard.CanCoinEat(i_SrcCell.Coin) ? true : false;
+                }
+            }
+
+            else if((srcRow - dstRow == 2 && srcCol - dstCol == -2)
+                    || (srcRow - dstRow == 2 && srcCol - dstCol == 2))
+                {
+                    if(playerNum == 1 || i_SrcCell.Coin.IsKing)
+                    {
+                        moveIsValid = i_GameBoard.CanCoinEat(i_SrcCell.Coin) ? true : false;
+                    }
+                }
+
+                else if((srcRow - dstRow == -1 && srcCol-dstCol == -1) || (srcRow - dstRow == -1 && srcCol - dstCol == 1))
+                {
+                    if (playerNum == -1 || i_SrcCell.Coin.IsKing)
+                    {
+                        moveIsValid = true;
+                    }
+                }
+
+                else if ((srcRow - dstRow == 1 && srcCol - dstCol == 1) || (srcRow - dstRow == 1 && srcCol - dstCol == -1)) 
+                {
+                         if (playerNum == 1 || i_SrcCell.Coin.IsKing)
+                         {
+                                moveIsValid = true;
+                         }
+                }
+
+                return moveIsValid;
         }
     }
 }

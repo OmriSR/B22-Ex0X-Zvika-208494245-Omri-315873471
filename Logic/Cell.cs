@@ -8,18 +8,20 @@ namespace Logic
 
     class Cell
     { 
-        short m_row, m_col;
-        bool m_isEmpty;
-        Coin m_coin = null;
+        short m_Row, m_Col;
+        bool m_IsEmpty;
+        Coin m_Coin = null;
 
         public Cell( eCellOwner i_CellOwner, short i_Col, short i_Row, short i_BoardSize)
         {
-            m_isEmpty = (i_CellOwner == eCellOwner.Empty);
+            m_IsEmpty = (i_CellOwner == eCellOwner.Empty);
+            m_Row = i_Row;
+            m_Col = i_Col;
 
-            if (!m_isEmpty)
+            if (!m_IsEmpty)
             {
                 short possibleMovesCount = countInitialPossibleMovesFromCell(i_Col, i_Row, i_BoardSize);
-                m_coin = new Coin(i_CellOwner, possibleMovesCount,i_Col,i_Row);
+                m_Coin = new Coin(i_CellOwner, possibleMovesCount,i_Col,i_Row);
             }
         }
 
@@ -27,11 +29,11 @@ namespace Logic
         {
             get
             {
-                return m_col;
+                return m_Col;
             }
             set
             {
-                m_row = value;
+                m_Col = value;
             }
         }
 
@@ -39,11 +41,11 @@ namespace Logic
         {
             get
             {
-                return m_row;
+                return m_Row;
             }
             set
             {
-                m_row = value;
+                m_Row = value;
             }
         }
 
@@ -74,11 +76,11 @@ namespace Logic
         {
             get
             {
-                return m_coin;
+                return m_Coin;
             }
             set
             {
-                m_coin = value;
+                m_Coin = value;
             }
         }
 
@@ -86,11 +88,11 @@ namespace Logic
         {
             get
             {
-                return m_isEmpty;
+                return m_IsEmpty;
             }
             set
             {
-                m_isEmpty = value;
+                m_IsEmpty = value;
             }
         }
     }
