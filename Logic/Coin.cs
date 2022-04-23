@@ -11,19 +11,30 @@ namespace Logic
         readonly eCellOwner r_player;
         bool m_canEatUpLeft, m_canEatUpRight, m_canEatDownRight, m_canEatDownLeft;
         bool m_GotMoves;
+        bool m_IsAlive = true;
 
         public Coin(eCellOwner i_Player, short i_NumOfPossibleMoves,short i_col, short i_row)
         {
             m_row = i_row;
             m_col = i_col;
             r_player = i_Player;
-            m_possibleMovesCount = i_NumOfPossibleMoves;
-            m_canEat = new bool[4];
+            // m_possibleMovesCount = i_NumOfPossibleMoves;
+            // m_canEat = new bool[4];
             m_canEatUpLeft = m_canEatUpRight = m_canEatDownRight = m_canEatDownLeft = false;
         }
 
         //----------- properties ----------------
-
+        public bool isAlive
+        {
+            get
+            {
+                return m_IsAlive;
+            }
+            set
+            {
+                m_IsAlive = value;
+            }
+        }
         public bool CanEatDownRight
         {
             get
@@ -82,7 +93,7 @@ namespace Logic
             }
             set
             {
-                m_row = value;
+                m_col = value;
             }
         }
 

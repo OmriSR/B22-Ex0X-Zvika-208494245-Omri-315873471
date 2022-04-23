@@ -1,5 +1,4 @@
 ﻿using System;
-using Logic;
 
 namespace UI
 {
@@ -16,11 +15,12 @@ namespace UI
         {
             printFirstText();
             string boardSize = Console.ReadLine();
-            while(!ValidBoardSize(boardSize)) // why doesn't it go to Engine.ValidBoardSize?
-            {
-                Console.WriteLine("You have entered illegal value! Please try again.");
-            }
-            // Start game (string to ushort --> boardSize);
+            //while (!Logic.ValidBoardSize(boardSize)) // why doesn't it go to Engine.ValidBoardSize?
+            //{
+            //    Console.WriteLine("You have entered illegal value! Please try again.");
+            //}
+
+            //Start game(string to ushort --> boardSize);
         }
 
         private static void printFirstText()

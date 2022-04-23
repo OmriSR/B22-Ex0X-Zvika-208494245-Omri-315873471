@@ -4,7 +4,7 @@ namespace Logic
 {
     class Program
     {
-        static void Main() // We will need to delete.
+        public static void Main() // We will need to delete.
         {
             //Console.WriteLine("Test printing the 2d array to make sure it's good. Please enter size>0 of table: ");
             //string val = Console.ReadLine();
@@ -46,6 +46,11 @@ namespace Logic
 
             //    Console.Write(Environment.NewLine);
             //}
+
+
+            // Testing a running game
+            Engine newGame = new Engine();
+            newGame.StartGame(8);
 
 
 
