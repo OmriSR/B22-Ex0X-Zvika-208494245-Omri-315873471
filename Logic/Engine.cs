@@ -24,7 +24,14 @@ namespace Logic
                 gameBoard.CheckAndUpdateKings();
                 gameBoard.PrintBoard(gameBoard.Board, gameBoard.r_BoardSize);
                 PrintPlayersTurn(m_curPlayer);
-                m_inputHandler.GetInputAndTranslateToCells(gameBoard.Board, out srcCell, out dstCell);
+                m_inputHandler.GetInputIfValidTranslateToCells(gameBoard, out srcCell, out dstCell);
+
+                if (srcCell == null || dstCell == null)
+                {
+                    PrintInvalidInput(1);
+                    continue;  // but dont change turn!
+                }
+
                 if(m_toQuit)
                 {
                     //print proper massage using UI.
@@ -165,8 +172,7 @@ namespace Logic
 
             if (!m_inputHandler.IsValidInput(COLrow, out o_toQuit))
             {
-                Console.WriteLine("Invalid input! please try again");
-                COLrow = getMoveUI(out o_toQuit);
+                COLrow = "Invalid input! please try again";
             }
 
             return COLrow;
@@ -279,12 +285,12 @@ namespace Logic
 
         // MOVE THIS FUNCTION TO UI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // AND CHANGE ECELLOWNER TO STRING PLAYERNAME!!!!!!!!!!!!!!!!!!!!!!!!!
-        public static void PrintPlayersTurn(eCellOwner i_CurrentPlayer)
+        public void PrintPlayersTurn(eCellOwner i_CurrentPlayer)
         {
             Console.WriteLine("This is {0}'s turn!", i_CurrentPlayer);
         }
 
-        public static void PrintInvalidInput(ushort typeOfInvalid)
+        public void PrintInvalidInput(ushort typeOfInvalid)
         {
             switch(typeOfInvalid)
             {

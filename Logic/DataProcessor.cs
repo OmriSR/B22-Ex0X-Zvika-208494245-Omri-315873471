@@ -57,29 +57,46 @@ namespace Logic
             o_row = Convert.ToInt16(i_CharPos[1] - 'a');
         }
 
-        private void translateInputToCells(Cell [,] board, string i_Input, out Cell o_curCell, out Cell o_dstCell)
+        private void translateInputToCells(GameBoard i_Gameboard, string i_Input, out Cell o_curCell, out Cell o_dstCell)
         {
             short curCol, curRow, dstCol, dstRow;
+            Cell testSrc, testDst;
+            o_curCell = o_dstCell = null;
 
             string[] positions = i_Input.Split(">");
             
             translatePositionToIndices(positions[0], out curCol, out curRow);
             translatePositionToIndices(positions[1], out dstCol, out dstRow);
 
-            o_curCell = board[curRow, curCol];
-            o_curCell.Row = curRow;
-            o_curCell.Col = curCol;
-            o_dstCell = board[dstRow, dstCol];
-            o_dstCell.Row = dstRow;
-            o_dstCell.Col = dstCol;
+            testSrc = new Cell(eCellOwner.Empty, curCol, curRow, i_Gameboard.r_BoardSize);
+            testDst = new Cell(eCellOwner.Empty, dstCol, dstRow, i_Gameboard.r_BoardSize);
+
+            if (isCellInBoardBounds(testSrc, i_Gameboard.r_BoardSize) && isCellInBoardBounds(testDst, i_Gameboard.r_BoardSize))
+            {
+                o_curCell = i_Gameboard.Board[curRow, curCol];
+                o_dstCell = i_Gameboard.Board[dstRow, dstCol];
+            }
+
+            //    o_curCell.Row = curRow;
+            //o_curCell.Col = curCol;
+            //o_dstCell.Row = dstRow;
+            //o_dstCell.Col = dstCol;
         }
 
-        public void GetInputAndTranslateToCells(Cell[,] i_Board, out Cell o_CurCell, out Cell o_DstCell)
+        public void GetInputIfValidTranslateToCells(GameBoard i_GameBoard, out Cell o_CurCell, out Cell o_DstCell)
         {
             Engine testToDelete = new Engine();
             bool toQuit;
             string COLrow = testToDelete.getMoveUI(out toQuit);           // UI method is used!!! handle it
-            translateInputToCells(i_Board, COLrow, out o_CurCell, out o_DstCell);
+
+            if (COLrow == "Invalid input! please try again")
+            {
+                o_CurCell = o_DstCell = null;
+            }
+            else
+            {
+                translateInputToCells(i_GameBoard, COLrow, out o_CurCell, out o_DstCell);
+            }
         }
 
         //----------------- Given Move Validation ------------------------
@@ -125,11 +142,11 @@ namespace Logic
             short playerNum = -1;
             short srcRow = i_SrcCell.Row, srcCol= i_SrcCell.Col;
             short dstRow = i_DstCell.Row, dstCol = i_DstCell.Col;
+
             if(i_PlayerNum == eCellOwner.Player1) // player1 = 1, player2 = -1
             {
                 playerNum = 1;
             }
-
 
             if((srcRow - dstRow == -2 && srcCol - dstCol == -2) || (srcRow - dstRow == -2 && srcCol - dstCol == 2))
             {
