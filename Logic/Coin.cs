@@ -10,6 +10,7 @@ namespace Logic
         bool m_isKing = false;
         readonly eCellOwner r_player;
         bool m_canEatUpLeft, m_canEatUpRight, m_canEatDownRight, m_canEatDownLeft;
+        bool m_canMoveUpLeft, m_canMoveUpRight, m_canMoveDownRight, m_canMoveDownLeft;
         bool m_GotMoves;
         bool m_IsAlive = true;
 
@@ -141,6 +142,59 @@ namespace Logic
             }
         }
 
+        public bool CanMoveDownRight
+        {
+            get
+            {
+                return m_canMoveDownRight;
+            }
+            set
+            {
+                m_canMoveDownRight = value;
+            }
+        }
+
+
+        public bool CanMoveDownLeft
+        {
+            get
+            {
+                return m_canMoveDownLeft;
+            }
+            set
+            {
+                m_canMoveDownLeft = value;
+            }
+        }
+
+
+        public bool CanMoveUpLeft
+        {
+            get
+            {
+                return m_canMoveUpLeft;
+            }
+            set
+            {
+                m_canMoveUpLeft = value;
+            }
+        }
+
+        public bool CanMoveUpRight
+        {
+            get
+            {
+                return m_canMoveUpRight;
+            }
+            set
+            {
+                m_canMoveUpRight = value;
+            }
+        }
+
+
+
+
         //------------------------------
 
 
@@ -150,6 +204,6 @@ namespace Logic
 
 
 
-        
+
     }
 }

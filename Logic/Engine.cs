@@ -19,132 +19,209 @@ namespace Logic
         {
             GameBoard gameBoard = new GameBoard(i_BoardSize);
             Cell srcCell, dstCell;
+            m_GameMove = eGameMode.SinglePlayer;
             //m_GameMove = GetGameMode();    UI func needs to be written
 
             do
             {
-                if(m_GameMove == eGameMode.SinglePlayer && m_curPlayer == eCellOwner.Player2)
-                {
-                    // AI computer move
-                    changePlayersTurn(ref m_curPlayer);
-                    continue;
-                }
-
+                
                 Ex02.ConsoleUtils.Screen.Clear();
-                gameBoard.CheckAndUpdateKings();
                 gameBoard.PrintBoard(gameBoard.Board, gameBoard.r_BoardSize);
+                updateAllGotMoves(gameBoard);
+                gameBoard.updateAllEatingSteps();
                 PrintPlayersTurn(m_curPlayer);
-                m_inputHandler.GetInputIfValidTranslateToCells(gameBoard, out srcCell, out dstCell);
-
-                if (srcCell == null || dstCell == null)
+                
+                if (m_GameMove == eGameMode.SinglePlayer && m_curPlayer == eCellOwner.Player2)
                 {
-                    PrintInvalidInput(1);
-                    continue;  // but dont change turn!
-                }
-
-                if(m_toQuit)
-                {
-                    //print proper massage using UI.
-                    break;
-                }
-
-                if(!m_inputHandler.MoveValidation(gameBoard, srcCell, dstCell, m_curPlayer))
-                {
-                    PrintInvalidInput(1);
-                    continue; // but dont change turn!
-                }
-
-                if (gameBoard.CanCoinEat(srcCell.Coin))
-                {
-                    //if(getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col) != eDirection.NullDirection)
-                    //{
-                    /*make the move and eat.*/
-                    Coin coinToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
-                    eDirection directionToMove = getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
-                    directionToMove = gameBoard.GetSubjectiveDirection(directionToMove, srcCell.Coin.Player);
-                    MoveCoin(gameBoard.Board, ref coinToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
-                    MoveCoinWithEatingStep(gameBoard.Board, coinToMove, srcCell.Row, srcCell.Col, directionToMove);
-                    continue; // dont switch turns
-                    //}
-                    //else
-                    //{
-                    //    // the move was valid and in bounds. But in the other spot was an enemy that we couldn't eat.
-                    //PrintInvalidInput(1);
-                    //continue; // but dont change turn!
-                    //}
-
-                }
-                else if (gameBoard.CanOtherCoinsEat(m_curPlayer))
-                {
-                    PrintInvalidInput(2);
-                    continue; // but dont change turn!
-                }
-                else if (checkIfPlayerOutOfMoves(gameBoard, m_curPlayer))
-                {
-                    //GameOver --- check if tie and give points accordinly.
-                    break;
-                }
-                else if (gameBoard.Board[dstCell.Row, dstCell.Col].Coin != null && gameBoard.Board[dstCell.Row, dstCell.Col].Coin.Player != eCellOwner.Empty)
-                {
-                    // the move was valid and in bounds. But in the other spot was an enemy that we couldn't eat.
-                    PrintInvalidInput(1);
-                    continue; // but dont change turn!
+                    //    // AI computer move
+                    ComputerMove(gameBoard);
+                    //    changePlayersTurn(ref m_curPlayer);
+                    //    continue;
                 }
                 else
                 {
-                    // If the move is valid, and there is no possible eat move, so you can do the move you requested.
-                    Coin playerToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
-                    MoveCoin(gameBoard.Board, ref playerToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
+                    m_inputHandler.GetInputIfValidTranslateToCells(gameBoard, out srcCell, out dstCell);
+
+                    if(srcCell == null || dstCell == null)
+                    {
+                        PrintInvalidInput(1);
+                        continue; // but dont change turn!
+                    }
+
+                    if(m_toQuit)
+                    {
+                        //print proper massage using UI.
+                        break;
+                    }
+
+                    if(!m_inputHandler.MoveValidation(gameBoard, srcCell, dstCell, m_curPlayer))
+                    {
+                        PrintInvalidInput(1);
+                        continue; // but dont change turn!
+                    }
+
+                    if(gameBoard.CanCoinEat(srcCell.Coin)) // If a player can eat on left, but more both left+right, it can go right.
+                    {
+                        //if(getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col) != eDirection.NullDirection)
+                        //{
+                        /*make the move and eat.*/
+                        Coin coinToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
+                        eDirection directionToMove = getEatingDirection(
+                            srcCell.Row,
+                            srcCell.Col,
+                            dstCell.Row,
+                            dstCell.Col);
+                        if(checkIfGivenDirectionIsPossibleEating(directionToMove, coinToMove))
+                        {
+                            MoveCoin(gameBoard.Board, ref coinToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
+                            MoveCoinWithEatingStep(gameBoard.Board, coinToMove, srcCell.Row, srcCell.Col, directionToMove);
+                        }
+                        else
+                        {
+                            PrintInvalidInput(2);
+                            continue; // but dont change turn!
+                        }
+                        // directionToMove = gameBoard.GetSubjectiveDirection(directionToMove, srcCell.Coin.Player);
+                        
+
+
+                        //Zvika: if you don't switch turns, it happens that X eats Y, X has no eatings left, but turn is still with X.
+
+
+                        //Omri:
+                        // continue; // dont switch turns
+
+
+                        //}
+                        //else
+                        //{
+                        //    // the move was valid and in bounds. But in the other spot was an enemy that we couldn't eat.
+                        //PrintInvalidInput(1);
+                        //continue; // but dont change turn!
+                        //}
+
+                    }
+                    else if(gameBoard.CanOtherCoinsEat(m_curPlayer))
+                    {
+                        PrintInvalidInput(2);
+                        continue; // but dont change turn!
+                    }
+                    else if(checkIfPlayerOutOfMoves(gameBoard, m_curPlayer))
+                    {
+                        //GameOver --- check if tie and give points accordinly.
+                        break;
+                    }
+                    else if(gameBoard.Board[dstCell.Row, dstCell.Col].Coin != null
+                            && gameBoard.Board[dstCell.Row, dstCell.Col].Coin.Player != eCellOwner.Empty)
+                    {
+                        // the move was valid and in bounds. But in the other spot was an enemy that we couldn't eat.
+                        PrintInvalidInput(1);
+                        continue; // but dont change turn!
+                    }
+                    else
+                    {
+                        // If the move is valid, and there is no possible eat move, so you can do the move you requested.
+                        Coin playerToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
+                        MoveCoin(gameBoard.Board, ref playerToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
+                    }
                 }
+
+                gameBoard.CheckAndUpdateKings();
                 changePlayersTurn(ref m_curPlayer);
             }
             while(!m_toQuit && !m_GameOver);
         }
 
+        private void updateAllGotMoves(GameBoard i_GameBoard)
+        {
+            foreach (Coin coin in i_GameBoard.Player1CoinSet)
+            {
+                if (coin != null && coin.isAlive)
+                {
+                    updateGotMoves(i_GameBoard, coin);
+                }
+            }
+            foreach (Coin coin in i_GameBoard.Player2CoinSet)
+            {
+                if (coin != null && coin.isAlive)
+                {
+                    updateGotMoves(i_GameBoard, coin);
+                }
+            }
+        }
         private void updateGotMoves(GameBoard i_GameBoard, Coin i_Coin)
         {
-            bool isValidMove;
+            bool isValidMoveUpRight, isValidMoveUpLeft, isValidMoveDownRight, isValidMoveDownLeft;
             eCellOwner upLeftOwner = eCellOwner.Empty;
             eCellOwner upRightOwner = eCellOwner.Empty;
             eCellOwner downLeftOwner = eCellOwner.Empty;
             eCellOwner downRightOwner = eCellOwner.Empty;
 
-            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMove).IsEmpty)
+            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMoveUpLeft) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMoveUpLeft).IsEmpty)
             {
-                upLeftOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMove).Coin.Player;
+                upLeftOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMoveUpLeft).Coin.Player;
             }
 
-            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMove).IsEmpty)
+            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMoveUpRight) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMoveUpRight).IsEmpty)
             { 
-                upRightOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMove).Coin.Player;
+                upRightOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMoveUpRight).Coin.Player;
             }
 
-            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMove).IsEmpty)
+            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMoveDownLeft) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMoveDownLeft).IsEmpty)
             {
-                downLeftOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMove).Coin.Player;
+                downLeftOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMoveDownLeft).Coin.Player;
             }
 
-            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMove).IsEmpty)
+            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMoveDownRight) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMoveDownRight).IsEmpty)
             {
-                downRightOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMove).Coin.Player;
+                downRightOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMoveDownRight).Coin.Player;
             }
 
             if(i_Coin != null)
             {
                 i_Coin.GotMoves = false;
                 // check if can move up
-                if (upLeftOwner != i_Coin.Player || upRightOwner != i_Coin.Player)
+                //if (upLeftOwner != i_Coin.Player || upRightOwner != i_Coin.Player)
+                //{
+                //    i_Coin.GotMoves = true;
+                //}
+
+                //if (i_Coin.IsKing)
+                //{
+                //    if (downLeftOwner != i_Coin.Player || downRightOwner != i_Coin.Player)
+                //    {
+                //        i_Coin.GotMoves = true;
+                //    }
+                //}
+
+                if(upLeftOwner != i_Coin.Player && isValidMoveUpLeft)
                 {
-                    i_Coin.GotMoves = true;
+                    i_Coin.CanMoveUpLeft = true;
+                }
+
+                if(upRightOwner != i_Coin.Player && isValidMoveUpRight)
+                {
+                    i_Coin.CanMoveUpRight = true;
                 }
 
                 if (i_Coin.IsKing)
                 {
-                    if (downLeftOwner != i_Coin.Player || downRightOwner != i_Coin.Player)
+                    if (downLeftOwner != i_Coin.Player && isValidMoveDownLeft)
                     {
-                        i_Coin.GotMoves = true;
+                        i_Coin.CanMoveDownLeft = true;
+                    }
+
+                    if(downRightOwner != i_Coin.Player && isValidMoveDownRight)
+                    {
+                        i_Coin.CanMoveDownRight = true;
                     }
                 }
+
+                if(i_Coin.CanMoveDownRight || i_Coin.CanMoveUpLeft || i_Coin.CanMoveDownLeft || i_Coin.CanMoveUpRight)
+                {
+                    i_Coin.GotMoves = true;
+                }
+
             }
         }
 
@@ -172,6 +249,35 @@ namespace Logic
             return !stillGotMoves;
         }
 
+
+        private bool checkIfGivenDirectionIsPossibleEating(eDirection i_DirectionToMove, Coin i_CoinToMove)
+        {
+            bool directionIsEating = false;
+            switch(i_DirectionToMove)
+            {
+                case eDirection.DownLeft:
+                    {
+                        directionIsEating = i_CoinToMove.CanEatDownLeft;
+                        break;
+                    }
+                case eDirection.DownRight:
+                    {
+                        directionIsEating = i_CoinToMove.CanEatDownRight;
+                        break;
+                    }
+                case eDirection.UpLeft:
+                    {
+                        directionIsEating = i_CoinToMove.CanEatUpLeft;
+                        break;
+                    }
+                case eDirection.UpRight:
+                    {
+                        directionIsEating = i_CoinToMove.CanEatUpRight;
+                        break;
+                    }
+            }
+            return directionIsEating;
+        }
         private bool srcCoinCanEatOrNoCoinCan(GameBoard i_GameBoard, Coin i_SrcCoin)
         {
             return (i_GameBoard.CanCoinEat(i_SrcCoin) || !i_GameBoard.CanOtherCoinsEat(m_curPlayer));  //   if I cant eat and no one else can it --> it is a valid move
@@ -295,6 +401,197 @@ namespace Logic
             }
             return directionToReturn;
         }
+
+        public void ComputerMove(GameBoard i_GameBoard)
+        {
+            Random rnd = new Random();
+            short dstCellRow, dstCellCol, indexOfCoinToMove;
+            bool computerHasToEatThisTurn = (i_GameBoard.CheckIfComputerHasToEatThisTurn());
+            List<Coin> possibleEatingCurrentCoins = new List<Coin>();
+            List<Coin> coinsThatCanMove = new List<Coin>();
+            Coin coinToMove;
+            eDirection directionToMove;
+
+            if (computerHasToEatThisTurn)
+            {
+                possibleEatingCurrentCoins = i_GameBoard.getCoinsThatCanEat(eCellOwner.Player2);
+                indexOfCoinToMove = Convert.ToInt16(rnd.Next(possibleEatingCurrentCoins.Count));
+                coinToMove = possibleEatingCurrentCoins[indexOfCoinToMove];
+            }
+            else
+            {
+                coinsThatCanMove = GetCoinsThatCanMoveWithoutEat(i_GameBoard);
+                // IF NO MOVES AVAILABLE ------- COMPUTER LOSES. NEED TO CHECK WE DONT GET HERE WITH 0 MOVES POSSIBLE.
+                indexOfCoinToMove = Convert.ToInt16(rnd.Next(coinsThatCanMove.Count));
+
+                coinToMove = coinsThatCanMove[indexOfCoinToMove];
+                //Cell srcCell = i_GameBoard.Board[coinToMove.Row, coinToMove.Col];
+                //eDirection directionToMove = getRandomPossibleDirection(coinToMove, toMoveWithoutEat);
+                //getDstRowAndDstColFromDirection(srcCell, directionToMove, out dstCellRow, out dstCellCol, toMoveWithoutEat);
+                //MoveCoin(i_GameBoard.Board, ref coinToMove, srcCell.Row, srcCell.Col, dstCellRow, dstCellCol);
+
+            }
+            Cell srcCell = i_GameBoard.Board[coinToMove.Row, coinToMove.Col];
+            directionToMove = getRandomPossibleDirection(coinToMove, computerHasToEatThisTurn);
+            directionToMove = i_GameBoard.mirrorDirection(directionToMove);
+            getDstRowAndDstColFromDirection(srcCell, directionToMove, out dstCellRow, out dstCellCol, computerHasToEatThisTurn);
+            if (computerHasToEatThisTurn)
+            {
+                MoveCoinWithEatingStep(i_GameBoard.Board, coinToMove, coinToMove.Row, coinToMove.Col, directionToMove);
+            }
+            MoveCoin(i_GameBoard.Board, ref coinToMove, coinToMove.Row, coinToMove.Col, dstCellRow, dstCellCol);
+
+            
+
+            System.Threading.Thread.Sleep(2000);
+        }
+
+
+        private eDirection getRandomPossibleDirection(Coin i_Coin, bool i_ComputerHasToEatThisTurn)
+        {
+            List<eDirection> directionsList = new List<eDirection>();
+            Random rnd = new Random();
+            fillDirectionsList(ref directionsList, i_Coin, i_ComputerHasToEatThisTurn);
+            short randomIndexFromList = Convert.ToInt16(rnd.Next(directionsList.Count));
+
+            return directionsList[randomIndexFromList];
+        }
+
+        private void fillDirectionsList(ref List<eDirection> i_ListOfDirections, Coin i_Coin, bool i_ComputerHasToEatThisTurn)
+        {
+            if(i_ComputerHasToEatThisTurn)
+            {
+                if (i_Coin.CanEatDownLeft)
+                {
+                    i_ListOfDirections.Add(eDirection.DownLeft);
+                }
+
+                if (i_Coin.CanEatDownRight)
+                {
+                    i_ListOfDirections.Add(eDirection.DownRight);
+                }
+
+                if (i_Coin.CanEatUpLeft)
+                {
+                    i_ListOfDirections.Add(eDirection.UpLeft);
+                }
+
+                if (i_Coin.CanEatUpRight)
+                {
+                    i_ListOfDirections.Add(eDirection.UpRight);
+                }
+            }
+            else
+            {
+                if (i_Coin.CanMoveDownLeft)
+                {
+                    i_ListOfDirections.Add(eDirection.DownLeft);
+                }
+
+                if (i_Coin.CanMoveDownRight)
+                {
+                    i_ListOfDirections.Add(eDirection.DownRight);
+                }
+
+                if (i_Coin.CanMoveUpLeft)
+                {
+                    i_ListOfDirections.Add(eDirection.UpLeft);
+                }
+
+                if (i_Coin.CanMoveUpRight)
+                {
+                    i_ListOfDirections.Add(eDirection.UpRight);
+                }
+            }
+        }
+
+        public List<Coin> GetCoinsThatCanMoveWithoutEat(GameBoard i_GameBoard)
+        {
+            List<Coin> listOfCoins = new List<Coin>();
+            
+            foreach (Coin coin in i_GameBoard.Player2CoinSet)
+            {
+                updateGotMoves(i_GameBoard, coin);
+                if (coin.isAlive && (coin.CanMoveDownRight || coin.CanMoveDownLeft || coin.CanMoveUpLeft || coin.CanMoveUpRight))
+                {
+                    listOfCoins.Add(coin);
+                }
+            }
+
+            return listOfCoins;
+        }
+
+        private void getDstRowAndDstColFromDirection(
+            Cell i_SrcCell,
+            eDirection i_Direction,
+            out short o_dstRow,
+            out short o_dstCol, bool i_ComputerEatsThisTurn)
+        {
+            o_dstRow = i_SrcCell.Row;
+            o_dstCol = i_SrcCell.Col;
+            if(i_ComputerEatsThisTurn)
+            {
+                switch (i_Direction)
+                {
+                    case eDirection.DownLeft:
+                        {
+                            o_dstRow += 2;
+                            o_dstCol -= 2;
+                            break;
+                        }
+                    case eDirection.DownRight:
+                        {
+                            o_dstRow += 2;
+                            o_dstCol += 2;
+                            break;
+                        }
+                    case eDirection.UpLeft:
+                        {
+                            o_dstRow -= 2;
+                            o_dstCol -= 2;
+                            break;
+                        }
+                    case eDirection.UpRight:
+                        {
+                            o_dstRow -= 2;
+                            o_dstCol += 2;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                switch (i_Direction)
+                {
+                    case eDirection.DownLeft:
+                        {
+                            o_dstRow += 1;
+                            o_dstCol -= 1;
+                            break;
+                        }
+                    case eDirection.DownRight:
+                        {
+                            o_dstRow += 1;
+                            o_dstCol += 1;
+                            break;
+                        }
+                    case eDirection.UpLeft:
+                        {
+                            o_dstRow -= 1;
+                            o_dstCol -= 1;
+                            break;
+                        }
+                    case eDirection.UpRight:
+                        {
+                            o_dstRow -= 1;
+                            o_dstCol += 1;
+                            break;
+                        }
+                }
+            }
+        }
+
+        
 
 
         // MOVE THIS FUNCTION TO UI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

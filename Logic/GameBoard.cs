@@ -165,7 +165,7 @@ namespace Logic
             return (i_PlayerNumber == eCellOwner.Player1) ? i_SubjectiveDirection : mirrorDirection(i_SubjectiveDirection);
         }
 
-        private eDirection mirrorDirection(eDirection dirToFlip)    // for moving player2 coins ( he moves Top to Buttom )
+        public eDirection mirrorDirection(eDirection dirToFlip)    // for moving player2 coins ( he moves Top to Buttom )
         {
             eDirection mirroredDic;
 
@@ -192,7 +192,7 @@ namespace Logic
 
         //----------- Check for possible 'eat' moves on board -----------
 
-        private List<Coin> getCoinsThatCanEat(eCellOwner i_CurPlayer)
+        public List<Coin> getCoinsThatCanEat(eCellOwner i_CurPlayer)
         {
             List<Coin> coinsThatCanEat = new List<Coin>();
 
@@ -225,7 +225,7 @@ namespace Logic
             eCellOwner currentCoinOwner = i_Coin.Player;
             Coin oppCoin;
 
-            if (downRightCell.Coin != null && isCoinOpponentPlayer(currentCoinOwner, downRightCell.Coin.Player))
+            if (downRightCell != null && !downRightCell.IsEmpty && downRightCell.Coin != null && isCoinOpponentPlayer(currentCoinOwner, downRightCell.Coin.Player))
             {
                 oppCoin = downRightCell.Coin;
                 i_Coin.CanEatDownRight = isEatingPathClear(oppCoin, eDirection.DownRight);
@@ -235,7 +235,7 @@ namespace Logic
                 i_Coin.CanEatDownRight = false;
             }
 
-            if (downLeftCell.Coin != null && isCoinOpponentPlayer(currentCoinOwner, downLeftCell.Coin.Player))
+            if (downLeftCell != null && !downLeftCell.IsEmpty && downLeftCell.Coin != null && isCoinOpponentPlayer(currentCoinOwner, downLeftCell.Coin.Player))
             {
                 oppCoin = downLeftCell.Coin;
                 i_Coin.CanEatDownLeft = isEatingPathClear(oppCoin, eDirection.DownLeft);
@@ -259,39 +259,42 @@ namespace Logic
 
 
             currentCoinOwner = i_SrcCell.Player;
-            if (upRightCell != null)
-            {
-                if (!upRightCell.IsEmpty)
-                {
-                    if (isCoinOpponentPlayer(currentCoinOwner, upRightCell.Coin.Player))              // if opp to the right
+            //if (upRightCell != null)
+            //{
+            //    if (!upRightCell.IsEmpty)
+            //    {
+                    if (upRightCell != null && !upRightCell.IsEmpty && isCoinOpponentPlayer(currentCoinOwner, upRightCell.Coin.Player))              // if opp to the right
                     {
                         oppCoin = upRightCell.Coin;                                                 // check if clear after him
                         i_SrcCell.CanEatUpRight = isEatingPathClear(oppCoin, eDirection.UpRight);
                     }
-                }
-            }
-            else
-            {
-                i_SrcCell.CanEatUpRight = false;
-            }
+                    else
+                    {
+                        i_SrcCell.CanEatUpRight = false;
+                    }                
+              //  }
+                //else
+                //{
+                //    i_SrcCell.CanEatUpRight = false;
+                //}
+          //  }
+            //else
+            //{
+            //    i_SrcCell.CanEatUpRight = false;
+            //}
 
-            if (upLeftCell != null)
-            {
-                if (!upLeftCell.IsEmpty)
-                {
-                    if (isCoinOpponentPlayer(currentCoinOwner, upLeftCell.Coin.Player))         // if opp to the left
+
+                    if (upLeftCell != null && !upLeftCell.IsEmpty && isCoinOpponentPlayer(currentCoinOwner, upLeftCell.Coin.Player))         // if opp to the left
                     {
                         oppCoin = upLeftCell.Coin;
                         i_SrcCell.CanEatUpLeft = isEatingPathClear(oppCoin, eDirection.UpLeft);
                     }
-                }
-            }
-            else
-            {
-                i_SrcCell.CanEatUpLeft = false;
-            }
+                    else
+                    {
+                        i_SrcCell.CanEatUpLeft = false;
+                    }
 
-            return (i_SrcCell.CanEatUpRight || i_SrcCell.CanEatUpLeft);
+                    return (i_SrcCell.CanEatUpRight || i_SrcCell.CanEatUpLeft);
         }
 
         public bool CanCoinEat(Coin i_SrcCell)
@@ -312,13 +315,43 @@ namespace Logic
             eDirection directionToCheck = mirrorDirection(eatingDirection);
             Cell subjectiveNeighbourCell = GetSubjectiveNeighbourCell(i_CoinToEat, directionToCheck, out eatingPathInBounds);
          
-            return subjectiveNeighbourCell.IsEmpty && eatingPathInBounds;
+            return eatingPathInBounds && subjectiveNeighbourCell.IsEmpty;
         }
 
         private bool isCoinOpponentPlayer(eCellOwner i_CurrentPlayer, eCellOwner i_CellOwnerToCheck)
         {
             return (i_CellOwnerToCheck != i_CurrentPlayer && i_CellOwnerToCheck != eCellOwner.Empty);
         }
+
+
+        public bool CheckIfComputerHasToEatThisTurn()
+        {
+            return CanOtherCoinsEat(eCellOwner.Player2);
+        }
+
+
+        public void updateAllEatingSteps()
+        {
+            foreach (Coin coin in m_Player1CoinSet)
+            {
+                if(coin != null && coin.isAlive)
+                {
+                    CanCoinEat(coin);
+                }
+            }
+            foreach (Coin coin in m_Player2CoinSet)
+            {
+                if (coin != null && coin.isAlive)
+                {
+                    CanCoinEat(coin);
+                }
+            }
+        }
+
+        
+
+
+
 
 
         //-------------------printing methods---------------------------
