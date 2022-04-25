@@ -7,19 +7,29 @@ namespace Logic
     public enum eDirection { UpRight, UpLeft, DownRight, DownLeft, NullDirection }
     class Engine
     {
+        private enum eGameMode { SinglePlayer, TwoPlayers }
+
         bool m_toQuit = false;
         DataProcessor m_inputHandler = new DataProcessor();
         eCellOwner m_curPlayer = eCellOwner.Player1;
         bool m_GameOver = false;
-
+        eGameMode m_GameMove;
         //------------- Main Game Loop ---------------------
         public void StartGame(short i_BoardSize)
         {
             GameBoard gameBoard = new GameBoard(i_BoardSize);
             Cell srcCell, dstCell;
-            
+            //m_GameMove = GetGameMode();    UI func needs to be written
+
             do
             {
+                if(m_GameMove == eGameMode.SinglePlayer && m_curPlayer == eCellOwner.Player2)
+                {
+                    // AI computer move
+                    changePlayersTurn(ref m_curPlayer);
+                    continue;
+                }
+
                 Ex02.ConsoleUtils.Screen.Clear();
                 gameBoard.CheckAndUpdateKings();
                 gameBoard.PrintBoard(gameBoard.Board, gameBoard.r_BoardSize);
@@ -44,30 +54,32 @@ namespace Logic
                     continue; // but dont change turn!
                 }
 
-                if(gameBoard.CanCoinEat(srcCell.Coin))
+                if (gameBoard.CanCoinEat(srcCell.Coin))
                 {
-                    if(getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col) != eDirection.NullDirection)
-                    {
-                        /*make the move and eat.*/
-                        Coin playerToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
-                        eDirection directionToMove = getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
-                        MoveCoin(gameBoard.Board, ref playerToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
-                        MoveCoinWithEatingStep(gameBoard.Board, playerToMove, srcCell.Row, srcCell.Col, directionToMove);
-                    }
-                    else
-                    {
-                        // the move was valid and in bounds. But in the other spot was an enemy that we couldn't eat.
-                    PrintInvalidInput(1);
-                    continue; // but dont change turn!
-                    }
-                    
+                    //if(getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col) != eDirection.NullDirection)
+                    //{
+                    /*make the move and eat.*/
+                    Coin coinToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
+                    eDirection directionToMove = getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
+                    directionToMove = gameBoard.GetSubjectiveDirection(directionToMove, srcCell.Coin.Player);
+                    MoveCoin(gameBoard.Board, ref coinToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
+                    MoveCoinWithEatingStep(gameBoard.Board, coinToMove, srcCell.Row, srcCell.Col, directionToMove);
+                    continue; // dont switch turns
+                    //}
+                    //else
+                    //{
+                    //    // the move was valid and in bounds. But in the other spot was an enemy that we couldn't eat.
+                    //PrintInvalidInput(1);
+                    //continue; // but dont change turn!
+                    //}
+
                 }
-                else if(gameBoard.CanOtherCoinsEat(m_curPlayer))
+                else if (gameBoard.CanOtherCoinsEat(m_curPlayer))
                 {
                     PrintInvalidInput(2);
                     continue; // but dont change turn!
                 }
-                else if(checkIfPlayerOutOfMoves(gameBoard, m_curPlayer))
+                else if (checkIfPlayerOutOfMoves(gameBoard, m_curPlayer))
                 {
                     //GameOver --- check if tie and give points accordinly.
                     break;
@@ -91,29 +103,30 @@ namespace Logic
 
         private void updateGotMoves(GameBoard i_GameBoard, Coin i_Coin)
         {
-            bool isValidMove = true;
+            bool isValidMove;
             eCellOwner upLeftOwner = eCellOwner.Empty;
             eCellOwner upRightOwner = eCellOwner.Empty;
             eCellOwner downLeftOwner = eCellOwner.Empty;
             eCellOwner downRightOwner = eCellOwner.Empty;
-            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, ref isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, ref isValidMove).IsEmpty)
+
+            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMove).IsEmpty)
             {
-                upLeftOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, ref isValidMove).Coin.Player;
+                upLeftOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpLeft, out isValidMove).Coin.Player;
             }
 
-            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, ref isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, ref isValidMove).IsEmpty)
+            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMove).IsEmpty)
             { 
-                upRightOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, ref isValidMove).Coin.Player;
+                upRightOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.UpRight, out isValidMove).Coin.Player;
             }
 
-            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, ref isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, ref isValidMove).IsEmpty)
+            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMove).IsEmpty)
             {
-                downLeftOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, ref isValidMove).Coin.Player;
+                downLeftOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownLeft, out isValidMove).Coin.Player;
             }
 
-            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, ref isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, ref isValidMove).IsEmpty)
+            if(i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMove) != null && !i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMove).IsEmpty)
             {
-                downRightOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, ref isValidMove).Coin.Player;
+                downRightOwner = i_GameBoard.GetSubjectiveNeighbourCell(i_Coin, eDirection.DownRight, out isValidMove).Coin.Player;
             }
 
             if(i_Coin != null)
@@ -248,7 +261,8 @@ namespace Logic
         {
             return (i_UserInput != "1" && i_UserInput != "2" && i_UserInput != "3");
         }
-        private static void changePlayersTurn(ref eCellOwner i_CurrentPlayer)
+
+        private void changePlayersTurn(ref eCellOwner i_CurrentPlayer)
         {
             if (i_CurrentPlayer == eCellOwner.Player1)
             {
@@ -260,7 +274,7 @@ namespace Logic
             }
         }
 
-        private static eDirection getEatingDirection(short i_SrcRow, short i_SrcCol, short i_DstRow, short i_DstCol)
+        private eDirection getEatingDirection(short i_SrcRow, short i_SrcCol, short i_DstRow, short i_DstCol)
         {
             eDirection directionToReturn = eDirection.NullDirection;
             if(i_SrcRow - i_DstRow == -2 && i_SrcCol - i_DstCol == 2) // down left
