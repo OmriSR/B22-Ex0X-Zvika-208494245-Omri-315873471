@@ -105,7 +105,6 @@ namespace Logic
         {
             bool moveInBounds = IsMoveInBoardBounds(i_SrcCell, i_DstCell, i_GameBoard.r_BoardSize); // move is in board
             bool srcCellIsOwnedByCurrentPlayer = false;
-            bool dstCellIsntOwnedByCurrentPlayer = true;
             bool moveIsDiagonalizedAndValid = checkSourceAndDstValidMove(i_GameBoard, i_SrcCell, i_DstCell, i_CurPlayer);
             //  source cell current players coin and dest is empty/opp coin
             if(!i_SrcCell.IsEmpty)
@@ -113,13 +112,7 @@ namespace Logic
                 srcCellIsOwnedByCurrentPlayer = i_SrcCell.Coin.Player == i_CurPlayer;
             }
 
-            if(!i_DstCell.IsEmpty)
-            {
-                dstCellIsntOwnedByCurrentPlayer = i_DstCell.Coin.Player != i_CurPlayer;
-            }
-
-            
-            return (moveInBounds && srcCellIsOwnedByCurrentPlayer && dstCellIsntOwnedByCurrentPlayer && moveIsDiagonalizedAndValid);           
+            return (moveInBounds && srcCellIsOwnedByCurrentPlayer && i_DstCell.IsEmpty && moveIsDiagonalizedAndValid);           
         }
 
         
