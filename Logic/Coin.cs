@@ -19,35 +19,35 @@ namespace Logic
             m_row = i_row;
             m_col = i_col;
             r_player = i_Player;
-            // m_possibleMovesCount = i_NumOfPossibleMoves;
-            // m_canEat = new bool[4];
+
             m_canEatUpLeft = m_canEatUpRight = m_canEatDownRight = m_canEatDownLeft = false;
         }
 
-        //----------- properties ----------------
         public bool isAlive
         {
             get
             {
                 return m_IsAlive;
             }
+
             set
             {
                 m_IsAlive = value;
             }
         }
+
         public bool CanEatDownRight
         {
             get
             {
                 return m_canEatDownRight;
             }
+
             set
             {
                 m_canEatDownRight = value;
             }
         }
-
 
         public bool CanEatDownLeft
         {
@@ -55,12 +55,12 @@ namespace Logic
             {
                 return m_canEatDownLeft;
             }
+
             set
             {
                 m_canEatDownLeft = value;
             }
         }
-
 
         public bool CanEatUpLeft
         {
@@ -68,6 +68,7 @@ namespace Logic
             {
                 return m_canEatUpLeft;
             }
+
             set
             {
                 m_canEatUpLeft = value;
@@ -80,6 +81,7 @@ namespace Logic
             {
                 return m_canEatUpRight;
             }
+
             set
             {
                 m_canEatUpRight = value;
@@ -92,6 +94,7 @@ namespace Logic
             {
                 return m_col;
             }
+
             set
             {
                 m_col = value;
@@ -104,6 +107,7 @@ namespace Logic
             {
                 return m_row;
             }
+
             set
             {
                 m_row = value;
@@ -116,6 +120,7 @@ namespace Logic
             {
                 return m_isKing;
             }
+
             set
             {
                 m_isKing = true;
@@ -128,6 +133,7 @@ namespace Logic
             {
                 return m_GotMoves;
             }
+
             set
             {
                 m_GotMoves = value;
@@ -148,12 +154,12 @@ namespace Logic
             {
                 return m_canMoveDownRight;
             }
+
             set
             {
                 m_canMoveDownRight = value;
             }
         }
-
 
         public bool CanMoveDownLeft
         {
@@ -161,12 +167,12 @@ namespace Logic
             {
                 return m_canMoveDownLeft;
             }
+
             set
             {
                 m_canMoveDownLeft = value;
             }
         }
-
 
         public bool CanMoveUpLeft
         {
@@ -174,6 +180,7 @@ namespace Logic
             {
                 return m_canMoveUpLeft;
             }
+
             set
             {
                 m_canMoveUpLeft = value;
@@ -186,24 +193,11 @@ namespace Logic
             {
                 return m_canMoveUpRight;
             }
+
             set
             {
                 m_canMoveUpRight = value;
             }
         }
-
-
-
-
-        //------------------------------
-
-
-
-
-
-
-
-
-
     }
 }

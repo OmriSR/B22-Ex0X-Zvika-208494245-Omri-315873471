@@ -20,13 +20,9 @@ namespace Logic
                 short boardSize = m_UserConnection.GetBoardSize();
                 short numOfPlayers = m_UserConnection.GetNumOfPlayers();
 
-                if (numOfPlayers == 2)
-                {
-                    player2Name = m_UserConnection.GetPlayerName();
-                }
-
+                player2Name = (numOfPlayers == 2) ? m_UserConnection.GetPlayerName() : "Computer";
                 quit = m_GameEngine.StartGame(boardSize, m_UserConnection, m_InputHandler, numOfPlayers, player1Name, player2Name);
-                // Do you want to quit?????
+                
                 if(!quit)
                 {
                     break;

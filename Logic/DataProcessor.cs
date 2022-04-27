@@ -6,8 +6,6 @@ namespace Logic
 {
     class DataProcessor  
     {
-        //----------- initial input validation ---------------------
-
         private bool isCapitalLetter(char i_CharToCheck)
         {
             return (i_CharToCheck >= 'A' && i_CharToCheck <= 'Z');
@@ -18,7 +16,7 @@ namespace Logic
             return (i_CharToCheck >= 'a' && i_CharToCheck <= 'z');
         }
 
-        public bool IsValidInput(string i_UserInput, out bool o_toQuit)
+        private bool isValidInput(string i_UserInput, out bool o_toQuit)
         {
             bool isValid = false;
             o_toQuit = false;
@@ -46,7 +44,7 @@ namespace Logic
             return isValid;
         }
 
-        private bool checkIfQuit(char i_UserInput)      // maybe should be in UI? (q is console based)      
+        private bool checkIfQuit(char i_UserInput)    
         {
             return (i_UserInput == 'q' || i_UserInput == 'Q');
         }
@@ -76,11 +74,6 @@ namespace Logic
                 o_curCell = i_Gameboard.Board[curRow, curCol];
                 o_dstCell = i_Gameboard.Board[dstRow, dstCol];
             }
-
-            //    o_curCell.Row = curRow;
-            //o_curCell.Col = curCol;
-            //o_dstCell.Row = dstRow;
-            //o_dstCell.Col = dstCol;
         }
 
         public bool GetInputIfValidTranslateToCells(GameBoard i_GameBoard, out Cell o_CurCell, out Cell o_DstCell, out bool o_isValid, UserInterface i_UserConnection)
@@ -89,7 +82,7 @@ namespace Logic
             string COLrow = i_UserConnection.getMoveUI();
             o_CurCell = o_DstCell = null;
 
-            o_isValid = IsValidInput(COLrow, out toQuit);
+            o_isValid = isValidInput(COLrow, out toQuit);
             
             if(!toQuit && o_isValid)
             {
@@ -99,14 +92,12 @@ namespace Logic
             return toQuit;
         }
 
-        //----------------- Given Move Validation ------------------------
-
         public bool MoveValidation(GameBoard i_GameBoard, Cell i_SrcCell, Cell i_DstCell, eCellOwner i_CurPlayer)
         {
-            bool moveInBounds = IsMoveInBoardBounds(i_SrcCell, i_DstCell, i_GameBoard.r_BoardSize); // move is in board
+            bool moveInBounds = isMoveInBoardBounds(i_SrcCell, i_DstCell, i_GameBoard.r_BoardSize);
             bool srcCellIsOwnedByCurrentPlayer = false;
             bool moveIsDiagonalizedAndValid = checkSourceAndDstValidMove(i_GameBoard, i_SrcCell, i_DstCell, i_CurPlayer);
-            //  source cell current players coin and dest is empty/opp coin
+
             if(!i_SrcCell.IsEmpty)
             {
                 srcCellIsOwnedByCurrentPlayer = i_SrcCell.Coin.Player == i_CurPlayer;
@@ -120,7 +111,7 @@ namespace Logic
             return (i_Col >= 0 && i_Col < i_BoardSize && i_Row >= 0 && i_Row < i_BoardSize);
         }
 
-        public bool IsMoveInBoardBounds(Cell i_srcCell,Cell i_dstCell, short i_BoardSize)
+        private bool isMoveInBoardBounds(Cell i_srcCell,Cell i_dstCell, short i_BoardSize)
         {
             return (isCellInBoardBounds(i_srcCell, i_BoardSize) && isCellInBoardBounds(i_dstCell, i_BoardSize));
         }
@@ -137,7 +128,7 @@ namespace Logic
             short srcRow = i_SrcCell.Row, srcCol= i_SrcCell.Col;
             short dstRow = i_DstCell.Row, dstCol = i_DstCell.Col;
 
-            if(i_PlayerNum == eCellOwner.Player1) // player1 = 1, player2 = -1
+            if(i_PlayerNum == eCellOwner.Player1) 
             {
                 playerNum = 1;
             }
