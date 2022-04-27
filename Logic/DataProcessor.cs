@@ -144,7 +144,7 @@ namespace Logic
 
             if((srcRow - dstRow == -2 && srcCol - dstCol == -2) || (srcRow - dstRow == -2 && srcCol - dstCol == 2))
             {
-                if(playerNum == -1 || i_SrcCell.Coin.IsKing)
+                if ((i_SrcCell.Coin != null) && (playerNum == -1 || i_SrcCell.Coin.IsKing))
                 {
                     moveIsValid = i_GameBoard.CanCoinEat(i_SrcCell.Coin) ? true : false;
                 }
@@ -153,7 +153,7 @@ namespace Logic
             else if((srcRow - dstRow == 2 && srcCol - dstCol == -2)
                     || (srcRow - dstRow == 2 && srcCol - dstCol == 2))
                 {
-                    if(playerNum == 1 || i_SrcCell.Coin.IsKing)
+                    if((i_SrcCell.Coin != null) && (playerNum == 1 || i_SrcCell.Coin.IsKing))
                     {
                         moveIsValid = i_GameBoard.CanCoinEat(i_SrcCell.Coin) ? true : false;
                     }
@@ -161,7 +161,7 @@ namespace Logic
 
                 else if((srcRow - dstRow == -1 && srcCol-dstCol == -1) || (srcRow - dstRow == -1 && srcCol - dstCol == 1))
                 {
-                    if (playerNum == -1 || i_SrcCell.Coin.IsKing)
+                    if (((i_SrcCell.Coin != null) && (playerNum == -1 || i_SrcCell.Coin.IsKing)))
                     {
                         moveIsValid = true;
                     }
@@ -169,7 +169,7 @@ namespace Logic
 
                 else if ((srcRow - dstRow == 1 && srcCol - dstCol == 1) || (srcRow - dstRow == 1 && srcCol - dstCol == -1)) 
                 {
-                         if (playerNum == 1 || i_SrcCell.Coin.IsKing)
+                         if (((i_SrcCell.Coin != null) && (playerNum == 1 || i_SrcCell.Coin.IsKing)))
                          {
                                 moveIsValid = true;
                          }
