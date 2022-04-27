@@ -13,11 +13,19 @@ namespace Logic
         bool m_toQuit = false, m_GameOver = false;
         eCellOwner m_curPlayer = eCellOwner.Player1;
         eGameMode m_GameMove;
+        private string m_PlayerOneName, m_PlayerTwoName = "Computer";
+        private short m_PlayerOnePoints = 0, m_PlayerTwoPoints = 0;
 
         //------------- Main Game Loop ---------------------
-        public bool StartGame(short i_BoardSize, UserInterface i_UserConnections, DataProcessor i_InputHandler, short i_NumOfPlayers)
+        public bool StartGame(short i_BoardSize, UserInterface i_UserConnections, DataProcessor i_InputHandler, short i_NumOfPlayers, string i_PlayerOneName, string i_PlayerTwoName)
         {
             GameBoard gameBoard = new GameBoard(i_BoardSize);
+            m_curPlayer = eCellOwner.Player1;
+            m_PlayerOneName = i_PlayerOneName;
+            if(i_PlayerTwoName != null)
+            {
+                m_PlayerTwoName = i_PlayerTwoName;
+            }
             Cell srcCell, dstCell;
             Coin coinThatHasToEatAgain = null;
             bool isValid, thisStepIncludesASpecificCoinEat = false;
@@ -30,8 +38,33 @@ namespace Logic
                 i_UserConnections.PrintBoard(gameBoard.Board, i_BoardSize);
                 updateAllGotMoves(gameBoard);
                 gameBoard.updateAllEatingSteps();
-                i_UserConnections.PrintPlayersTurn(m_curPlayer);
-                
+                i_UserConnections.PrintPlayersTurn(m_curPlayer, i_PlayerOneName, i_PlayerTwoName);
+
+                if (checkIfPlayerOutOfMoves(gameBoard, m_curPlayer))
+                {
+                    //GameOver --- check if tie and give points accordinly.
+                    eCellOwner checkOtherPlayerTurns = eCellOwner.Empty;
+                    if(m_curPlayer == eCellOwner.Player1)
+                    {
+                        checkOtherPlayerTurns = eCellOwner.Player2;
+                    }
+                    else
+                    {
+                        checkOtherPlayerTurns = eCellOwner.Player1;
+                    }
+                    if(checkIfPlayerOutOfMoves(gameBoard, checkOtherPlayerTurns))
+                    {
+                        // TIE
+                        i_UserConnections.PrintTie();
+                    }
+                    else
+                    {
+                        i_UserConnections.PrintWin(checkOtherPlayerTurns, i_PlayerOneName, i_PlayerTwoName);
+                        UpdatePlayersPoints(gameBoard, ref m_PlayerTwoPoints, ref m_PlayerOnePoints, checkOtherPlayerTurns);
+                    }
+                    m_GameOver = true;
+                    break;
+                }
                 if (m_GameMove == eGameMode.SinglePlayer && m_curPlayer == eCellOwner.Player2)
                 {
                     //    // AI computer move
@@ -46,14 +79,11 @@ namespace Logic
                         continue;
                     }
 
-
                     thisStepIncludesASpecificCoinEat = false;
                     changePlayersTurn(ref m_curPlayer);
                     continue;
                 }
-                else
-                {
-                    m_toQuit = i_InputHandler.GetInputIfValidTranslateToCells(gameBoard, out srcCell, out dstCell, out isValid, i_UserConnections);
+                m_toQuit = i_InputHandler.GetInputIfValidTranslateToCells(gameBoard, out srcCell, out dstCell, out isValid, i_UserConnections);
 
                     if(!isValid)
                     {
@@ -86,7 +116,10 @@ namespace Logic
                         /*make the move and eat.*/
                         Coin coinToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
                         eDirection directionToMove = getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
-
+                        if(coinToMove.Player == eCellOwner.Player2)
+                        {
+                            gameBoard.mirrorDirection(directionToMove);
+                        }
                         if(checkIfGivenDirectionIsPossibleEating(directionToMove, coinToMove))
                         {
                             MoveCoin(gameBoard.Board, ref coinToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
@@ -130,11 +163,6 @@ namespace Logic
                         i_UserConnections.PrintErrorMassage(2);
                         continue; // but dont change turn!
                     }
-                    else if(checkIfPlayerOutOfMoves(gameBoard, m_curPlayer))
-                    {
-                        //GameOver --- check if tie and give points accordinly.
-                        break;
-                    }
                     else if(gameBoard.Board[dstCell.Row, dstCell.Col].Coin != null
                             && gameBoard.Board[dstCell.Row, dstCell.Col].Coin.Player != eCellOwner.Empty)
                     {
@@ -148,12 +176,16 @@ namespace Logic
                         Coin playerToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
                         MoveCoin(gameBoard.Board, ref playerToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
                     }
-                }
 
-                thisStepIncludesASpecificCoinEat = false;
-                changePlayersTurn(ref m_curPlayer);
+                    thisStepIncludesASpecificCoinEat = false;
+                    changePlayersTurn(ref m_curPlayer);
             }
-            while(!m_toQuit && !m_GameOver);
+            while(!m_toQuit || !m_GameOver);
+
+            if(i_UserConnections.DoYouWantToPlayAnotherGame())
+            { 
+                m_toQuit = false;
+            }
 
             return m_toQuit;
         }
@@ -166,6 +198,11 @@ namespace Logic
                 {
                     updateGotMoves(i_GameBoard, coin);
                 }
+
+                if(coin != null && !coin.isAlive)
+                {
+                    killCoin(coin);
+                }
             }
             foreach (Coin coin in i_GameBoard.Player2CoinSet)
             {
@@ -173,9 +210,27 @@ namespace Logic
                 {
                     updateGotMoves(i_GameBoard, coin);
                 }
+
+                if(coin != null && !coin.isAlive)
+                {
+                    killCoin(coin);
+                }
+                
             }
         }
 
+        private void killCoin(Coin i_Coin)
+        {
+            i_Coin.GotMoves = false;
+            i_Coin.CanMoveUpLeft = false;
+            i_Coin.CanMoveUpRight = false;
+            i_Coin.CanMoveDownLeft = false;
+            i_Coin.CanMoveDownRight = false;
+            i_Coin.CanEatUpLeft = false;
+            i_Coin.CanEatUpRight = false;
+            i_Coin.CanEatDownLeft = false;
+            i_Coin.CanEatDownRight = false;
+        }
         private void updateGotMoves(GameBoard i_GameBoard, Coin i_Coin)
         {
             bool isValidMoveUpRight, isValidMoveUpLeft, isValidMoveDownRight, isValidMoveDownLeft;
@@ -285,26 +340,30 @@ namespace Logic
 
         private bool checkIfPlayerOutOfMoves(GameBoard i_GameBoard, eCellOwner i_CurPlayer)
         {
-            bool stillGotMoves = false;
+            bool gotMoves = false;
 
             Coin[] curPlayerCoinSet = (i_CurPlayer == eCellOwner.Player1) ? i_GameBoard.Player1CoinSet : i_GameBoard.Player2CoinSet;
 
             foreach (Coin coin in curPlayerCoinSet)
             {
-                if(coin != null)
+                //if(coin != null)
+                //{
+                //    updateGotMoves(i_GameBoard, coin);
+
+                //    if (stillGotMoves = stillGotMoves || coin.GotMoves)
+                //    {
+                //        break;
+                //    }
+
+                //}
+                if((coin != null && coin.isAlive) || (coin !=null && coin.GotMoves))
                 {
-                    updateGotMoves(i_GameBoard, coin);
-
-                    if (stillGotMoves = stillGotMoves || coin.GotMoves)
-                    {
-                        break;
-                    }
-
+                    gotMoves = true;
                 }
 
             }
 
-            return !stillGotMoves;
+            return !gotMoves;
         }
 
         private bool checkIfGivenDirectionIsPossibleEating(eDirection i_DirectionToMove, Coin i_CoinToMove)
@@ -641,6 +700,53 @@ namespace Logic
                 }
             }
         }
+
+        private void UpdatePlayersPoints(GameBoard i_GameBoard, ref short m_PlayerTwoPoints, ref short m_PlayerOnePoints, eCellOwner i_Winner)
+        {
+            short alivePlayerOneCoins = 0, alivePlayerTwoCoins = 0;
+            foreach(Coin coin in i_GameBoard.Player1CoinSet)
+            {
+                if(coin != null && coin.isAlive)
+                    if (coin.IsKing)
+                    {
+                        alivePlayerOneCoins += 4;
+                    }
+                    else
+                    {
+                        alivePlayerOneCoins++;
+                    }
+            }
+            foreach (Coin coin in i_GameBoard.Player2CoinSet)
+            {
+                if (coin != null && coin.isAlive)
+                {
+                    if(coin.IsKing)
+                    {
+                        alivePlayerTwoCoins += 4;
+                    }
+                    else
+                    {
+                        alivePlayerTwoCoins++;
+                    }
+                }
+                    
+            }
+            short addToPoints = (short)(alivePlayerOneCoins - alivePlayerTwoCoins);
+            if (addToPoints < 0)
+            {
+                addToPoints *= -1;
+            }
+            if (i_Winner == eCellOwner.Player1)
+            {
+                
+                m_PlayerOnePoints += addToPoints;
+            }
+            else
+            {
+                m_PlayerTwoPoints += addToPoints;
+            }
+        }
+
     }
 
     

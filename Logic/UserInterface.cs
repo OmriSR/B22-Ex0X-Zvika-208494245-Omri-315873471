@@ -32,7 +32,7 @@ namespace Logic
                 Console.WriteLine("Please enter the number of players ( 1/2 ): ");
                 numOfPlayers = Console.ReadLine();
             }
-            while (numOfPlayers != "1" && numOfPlayers != "2");
+            while(numOfPlayers != "1" && numOfPlayers != "2");
 
             return Convert.ToInt16(numOfPlayers);
         }
@@ -51,20 +51,28 @@ namespace Logic
                 Console.WriteLine("Please enter board size ( 6/8/10 ) : ");
                 boardSize = Console.ReadLine();
             }
-            while (boardSize != "6" && boardSize != "8" && boardSize != "10");
+            while(boardSize != "6" && boardSize != "8" && boardSize != "10");
 
             return Convert.ToInt16(boardSize);
         }
 
         //----------------- Turn Info Printing ---------
-        public void PrintPlayersTurn(eCellOwner i_CurrentPlayer)
+        public void PrintPlayersTurn(eCellOwner i_CurrentPlayer, string i_PlayerOnaName, string i_PlayerTwoName)
         {
-            Console.WriteLine("This is {0}'s turn!", i_CurrentPlayer);
+            if(i_CurrentPlayer == eCellOwner.Player1)
+            {
+                Console.WriteLine("This is {0}'s turn!", i_PlayerOnaName);
+            }
+            else
+            {
+                Console.WriteLine("This is {0}'s turn!", i_PlayerTwoName);
+            }
+
         }
 
         public void PrintErrorMassage(ushort typeOfInvalid)
         {
-            switch (typeOfInvalid)
+            switch(typeOfInvalid)
             {
                 case 1:
                     {
@@ -78,11 +86,12 @@ namespace Logic
                     }
                 case 3:
                     {
-                        Console.WriteLine("Computer can eat again. Turn stays with computer. ");  
+                        Console.WriteLine("Computer can eat again. Turn stays with computer. ");
                         break;
                     }
-                    case 4:
-                        Console.WriteLine("You have another step with eating possible. Turn stays with you. You have to play it.");
+                case 4:
+                    Console.WriteLine(
+                        "You have another step with eating possible. Turn stays with you. You have to play it.");
                     break;
             }
 
@@ -95,17 +104,17 @@ namespace Logic
             short currentCol = 0;
             printFirstRow(i_GameSize);
 
-            for (short row = 1; row < i_GameSize * 2 + 2; row++)
+            for(short row = 1; row < i_GameSize * 2 + 2; row++)
             {
-                for (short col = 0; col < i_GameSize * 4 + 2; col++)
+                for(short col = 0; col < i_GameSize * 4 + 2; col++)
                 {
-                    if (!printFirstCol(row, col, ref currentCol))
+                    if(!printFirstCol(row, col, ref currentCol))
                     {
-                        if (!printShaveSign(row))
+                        if(!printShaveSign(row))
                         {
-                            if (!printCommaSign(row, col))
+                            if(!printCommaSign(row, col))
                             {
-                                if (!checkIfToPrintCoinsOnBoard(i_GameBoard, row, col, i_GameSize))
+                                if(!checkIfToPrintCoinsOnBoard(i_GameBoard, row, col, i_GameSize))
                                 {
                                     Console.Write(' ');
                                 }
@@ -113,6 +122,7 @@ namespace Logic
                         }
                     }
                 }
+
                 Console.Write(Environment.NewLine);
             }
 
@@ -121,20 +131,20 @@ namespace Logic
         private bool checkIfToPrintCoinsOnBoard(Cell[,] i_GameBoard, short i_Row, short i_Col, short i_GameSize)
         {
             bool didPrint = false;
-            if (i_Row != 0 && i_Row % 2 == 0)
+            if(i_Row != 0 && i_Row % 2 == 0)
             {
                 short rowCheck = (short)(i_Row / 2 - 1);
                 short colCheck = (short)(i_Col / 4);
-                if (colCheck == i_GameSize)
+                if(colCheck == i_GameSize)
                 {
                     colCheck--;
                 }
 
-                if (i_GameBoard[rowCheck, colCheck].Coin == null)
+                if(i_GameBoard[rowCheck, colCheck].Coin == null)
                 {
                     didPrint = false;
                 }
-                else if (!i_GameBoard[rowCheck, colCheck].IsEmpty && i_Col % 4 == 3)
+                else if(!i_GameBoard[rowCheck, colCheck].IsEmpty && i_Col % 4 == 3)
                 {
                     didPrint = printCoinsOnBoard(i_GameBoard, rowCheck, colCheck);
                 }
@@ -146,9 +156,9 @@ namespace Logic
         private bool printCoinsOnBoard(Cell[,] i_GameBoard, short i_RowToCheck, short i_ColToCheck)
         {
             bool didPrint = false;
-            if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player1)
+            if(i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player1)
             {
-                if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
+                if(i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
                 {
                     Console.Write('K');
                 }
@@ -159,9 +169,9 @@ namespace Logic
 
                 didPrint = true;
             }
-            else if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player2)
+            else if(i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player2)
             {
-                if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
+                if(i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
                 {
                     Console.Write('U');
                 }
@@ -169,6 +179,7 @@ namespace Logic
                 {
                     Console.Write('O');
                 }
+
                 didPrint = true;
             }
 
@@ -178,25 +189,26 @@ namespace Logic
         private void printFirstRow(short i_GameSize)
         {
             short row = 0;
-            for (short i = 0; i < i_GameSize * 4 + 1; i++)
+            for(short i = 0; i < i_GameSize * 4 + 1; i++)
             {
-                if (i % 4 == 0 && i != 0) // First Row drawing
+                if(i % 4 == 0 && i != 0) // First Row drawing
                 {
                     Console.Write((char)(row + 'A'));
                     row++;
                 }
-                else if (i != 0)
+                else if(i != 0)
                 {
                     Console.Write(' ');
                 }
             }
+
             Console.Write(Environment.NewLine);
         }
 
         private bool printFirstCol(short i_Row, short i_Col, ref short i_CurrentCol)
         {
             bool didPrint = false;
-            if (i_Col == 0 && i_Row % 2 == 0 && i_Row != 0)
+            if(i_Col == 0 && i_Row % 2 == 0 && i_Row != 0)
             {
                 Console.Write((char)(i_CurrentCol + 'a'));
                 i_CurrentCol++;
@@ -209,7 +221,7 @@ namespace Logic
         private bool printShaveSign(short i_currentRow)
         {
             bool didPrint = false;
-            if (i_currentRow % 2 != 0)
+            if(i_currentRow % 2 != 0)
             {
                 didPrint = true;
                 Console.Write('=');
@@ -221,7 +233,7 @@ namespace Logic
         private bool printCommaSign(short i_Row, short i_Col)
         {
             bool didPrint = false;
-            if (i_Col % 4 == 1 && i_Row != 0 && i_Row % 2 == 0)
+            if(i_Col % 4 == 1 && i_Row != 0 && i_Row % 2 == 0)
             {
                 Console.Write('|');
                 didPrint = true;
@@ -229,5 +241,53 @@ namespace Logic
 
             return didPrint;
         }
+
+        public void PrintTie()
+        {
+            Console.WriteLine("TIE! Both players have no moves available! Congratulations!");
+        }
+
+        public void PrintWin(eCellOwner i_PlayerWon, string i_Player1Name, string i_Player2Name)
+        {
+            Ex02.ConsoleUtils.Screen.Clear();
+            if(i_PlayerWon == eCellOwner.Player1)
+            {
+                Console.WriteLine("Player {0} wins! Congratulations!", i_Player1Name);
+            }
+            else
+            {
+                Console.WriteLine("Player {0} wins! Congratulations!", i_Player2Name);
+            }
+            System.Threading.Thread.Sleep(5000);
+        }
+
+        public bool DoYouWantToPlayAnotherGame()
+        {
+            bool playAnotherGame = false;
+            Ex02.ConsoleUtils.Screen.Clear();
+            Console.WriteLine("Do you want to play another game? If yes, write Y. If not, write N. ");
+            string userInput;
+
+            do
+            {
+                userInput = Console.ReadLine();
+                if(userInput == "Y" || userInput == "y")
+                {
+                    playAnotherGame = true;
+                }
+                else if(userInput == "N" || userInput == "n")
+                {
+                    playAnotherGame = false;
+                }
+                else
+                {
+                    Console.WriteLine("Wrong input. Please try again.");
+                }
+            }
+            while(userInput != "Y" && userInput != "N" && userInput != "y" && userInput != "n");
+
+            return playAnotherGame;
+        }
+
     }
 }

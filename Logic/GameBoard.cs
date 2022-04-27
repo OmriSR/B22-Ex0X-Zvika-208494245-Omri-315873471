@@ -15,8 +15,7 @@ namespace Logic
 
         private void initBoard(short i_BoardSize)
         {
-            short coinsCounter = 0;
-            int indexForPlayer1CoinSet = 0;
+            int indexForPlayer1CoinSet = 0, indexForPlayer2CoinSet = 0;
             for (short row = 0; row < i_BoardSize; row++)
             {
                 for (short col = 0; col < i_BoardSize; col++)
@@ -24,7 +23,8 @@ namespace Logic
                     if ((row < (i_BoardSize / 2) - 1) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Player2, col, row, r_BoardSize);
-                        m_Player2CoinSet[coinsCounter++] = m_GameBoard[row, col].Coin;
+                        m_Player2CoinSet[indexForPlayer2CoinSet] = m_GameBoard[row, col].Coin;
+                        indexForPlayer2CoinSet++;
                     }
 
                     else if (row > (i_BoardSize / 2) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
@@ -33,8 +33,6 @@ namespace Logic
                         //  m_Player1CoinSet[coinsCounter++ - m_numOfCoins] = m_GameBoard[row, col].Coin;
                         m_Player1CoinSet[indexForPlayer1CoinSet] = m_GameBoard[row, col].Coin;
                         indexForPlayer1CoinSet++;
-                        coinsCounter++;
-
                     }
 
                     else
@@ -73,7 +71,7 @@ namespace Logic
                     }
                 case 10:
                     {
-                        numOfCoins = 32;
+                        numOfCoins = 40;
                         break;
                     }
                 default:
@@ -197,7 +195,7 @@ namespace Logic
 
             foreach (Coin coin in ((i_CurPlayer == eCellOwner.Player1) ? Player1CoinSet : Player2CoinSet))
             {
-                if (coin.isAlive && CanCoinEat(coin))
+                if (coin != null && coin.isAlive && CanCoinEat(coin))
                 {
                     coinsThatCanEat.Add(coin);
                     coin.GotMoves = true;
@@ -280,6 +278,12 @@ namespace Logic
                 valueToReturn = i_Coin.CanEatDownLeft || i_Coin.CanEatDownRight;
             }
 
+            if((i_Coin != null) && (i_Coin.CanEatDownLeft || i_Coin.CanEatDownRight || i_Coin.CanEatUpLeft
+                                    || i_Coin.CanEatUpRight))
+            {
+                i_Coin.GotMoves = true;
+                valueToReturn = true;
+            }
             return valueToReturn;
         }
 
