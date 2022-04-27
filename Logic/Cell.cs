@@ -31,6 +31,7 @@ namespace Logic
             {
                 return m_Col;
             }
+
             set
             {
                 m_Col = value;
@@ -43,9 +44,36 @@ namespace Logic
             {
                 return m_Row;
             }
+
             set
             {
                 m_Row = value;
+            }
+        }
+
+        public Coin Coin
+        {
+            get
+            {
+                return m_Coin;
+            }
+
+            set
+            {
+                m_Coin = value;
+            }
+        }
+
+        public bool IsEmpty
+        {
+            get
+            {
+                return m_IsEmpty;
+            }
+
+            set
+            {
+                m_IsEmpty = value;
             }
         }
 
@@ -72,28 +100,6 @@ namespace Logic
             return possibleMoves;
         }
 
-        public Coin Coin
-        {
-            get
-            {
-                return m_Coin;
-            }
-            set
-            {
-                m_Coin = value;
-            }
-        }
 
-        public bool IsEmpty
-        {
-            get
-            {
-                return m_IsEmpty;
-            }
-            set
-            {
-                m_IsEmpty = value;
-            }
-        }
     }
 }

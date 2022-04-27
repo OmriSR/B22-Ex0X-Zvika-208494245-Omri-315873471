@@ -26,15 +26,12 @@ namespace Logic
                         m_Player2CoinSet[indexForPlayer2CoinSet] = m_GameBoard[row, col].Coin;
                         indexForPlayer2CoinSet++;
                     }
-
                     else if (row > (i_BoardSize / 2) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Player1, col, row, r_BoardSize);
-                        //  m_Player1CoinSet[coinsCounter++ - m_numOfCoins] = m_GameBoard[row, col].Coin;
                         m_Player1CoinSet[indexForPlayer1CoinSet] = m_GameBoard[row, col].Coin;
                         indexForPlayer1CoinSet++;
                     }
-
                     else
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Empty, col, row, r_BoardSize);
@@ -57,6 +54,7 @@ namespace Logic
         private short getNumOfCoinsByBoardSize(short i_BoardSize)
         {
             short numOfCoins = -1;
+
             switch (i_BoardSize)
             {
                 case 6:
@@ -85,7 +83,6 @@ namespace Logic
 
         }
 
-        //------------- propertise -----------------------
 
         public Cell[,] Board
         {
@@ -111,13 +108,11 @@ namespace Logic
             }
         }
 
-        //------------- Check Neighbour Board Cell -------------------------
-
-        public Cell GetSubjectiveNeighbourCell(Coin i_SrcCoin, eDirection i_Direction, out bool i_IsNeighbourInBounds) // moving buttom to top
+        public Cell GetSubjectiveNeighbourCell(Coin i_SrcCoin, eDirection i_Direction, out bool i_IsNeighbourInBounds)
         {
             Cell neighbour = null;
             short neighbourRow, neighbourCol;
-            eDirection subjectiveDirection = GetSubjectiveDirection(i_Direction, i_SrcCoin.Player);
+            eDirection subjectiveDirection = getSubjectiveDirection(i_Direction, i_SrcCoin.Player);
             i_IsNeighbourInBounds = false;
 
             switch (subjectiveDirection)
@@ -143,7 +138,7 @@ namespace Logic
                     break;
             }
 
-            if (CheckIfCellInBoundsByIndices(neighbourCol, neighbourRow, r_BoardSize))
+            if (checkIfCellInBoundsByIndices(neighbourCol, neighbourRow, r_BoardSize))
             {
                 neighbour = m_GameBoard[neighbourRow, neighbourCol];
                 i_IsNeighbourInBounds = true;
@@ -152,17 +147,17 @@ namespace Logic
             return neighbour;
         }
 
-        public bool CheckIfCellInBoundsByIndices(short i_Col, short i_Row, short i_BoardSize)
+        private bool checkIfCellInBoundsByIndices(short i_Col, short i_Row, short i_BoardSize)
         {
             return (i_Row >= 0 && i_Col >= 0 && i_Row <= i_BoardSize - 1 && i_Col <= i_BoardSize - 1);
         }
 
-        public eDirection GetSubjectiveDirection(eDirection i_SubjectiveDirection, eCellOwner i_PlayerNumber)
+        private eDirection getSubjectiveDirection(eDirection i_SubjectiveDirection, eCellOwner i_PlayerNumber)
         {
             return (i_PlayerNumber == eCellOwner.Player1) ? i_SubjectiveDirection : mirrorDirection(i_SubjectiveDirection);
         }
 
-        public eDirection mirrorDirection(eDirection dirToFlip)    // for moving player2 coins ( he moves Top to Buttom )
+        public eDirection mirrorDirection(eDirection dirToFlip)   
         {
             eDirection mirroredDic;
 
@@ -187,8 +182,6 @@ namespace Logic
             return mirroredDic;
         }
 
-        //----------- Check for possible 'eat' moves on board -----------
-
         public List<Coin> getCoinsThatCanEat(eCellOwner i_CurPlayer)
         {
             List<Coin> coinsThatCanEat = new List<Coin>();
@@ -209,6 +202,7 @@ namespace Logic
         {
             List<Coin> ableToEatCoins;
             ableToEatCoins = getCoinsThatCanEat(i_CurPlayer);
+
             return (ableToEatCoins.Count > 0);
         }
 
@@ -224,6 +218,7 @@ namespace Logic
             if (downRightCell != null && !downRightCell.IsEmpty && downRightCell.Coin != null && isCoinOpponentPlayer(currentCoinOwner, downRightCell.Coin.Player))
             {
                 oppCoin = downRightCell.Coin;
+
                 if(i_Coin.Player == eCellOwner.Player2)
                 {
                     i_Coin.CanEatUpLeft = isEatingPathClear(oppCoin, eDirection.DownRight);
@@ -248,6 +243,7 @@ namespace Logic
             if (downLeftCell != null && !downLeftCell.IsEmpty && downLeftCell.Coin != null && isCoinOpponentPlayer(currentCoinOwner, downLeftCell.Coin.Player))
             {
                 oppCoin = downLeftCell.Coin;
+
                 if(i_Coin.Player == eCellOwner.Player2)
                 {
                     i_Coin.CanEatUpRight = isEatingPathClear(oppCoin, eDirection.DownLeft);
@@ -289,7 +285,7 @@ namespace Logic
 
         private bool canRegularCoinEat(Coin i_SrcCell)
         {
-            bool neighbourInBounds, canRegularCoinEat = false;
+            bool neighbourInBounds;
             Coin oppCoin;
             eCellOwner currentCoinOwner = eCellOwner.Empty;
             Cell upLeftCell = GetSubjectiveNeighbourCell(i_SrcCell, eDirection.UpLeft, out neighbourInBounds);
@@ -297,12 +293,14 @@ namespace Logic
             bool valueToReturn = false;
 
             currentCoinOwner = i_SrcCell.Player;
+
             if(upRightCell != null && !upRightCell.IsEmpty
                                    && isCoinOpponentPlayer(
                                        currentCoinOwner,
-                                       upRightCell.Coin.Player)) // if opp to the right
+                                       upRightCell.Coin.Player)) 
             {
-                oppCoin = upRightCell.Coin; // check if clear after him
+                oppCoin = upRightCell.Coin; 
+
                 if(i_SrcCell.Player == eCellOwner.Player2)
                 {
                     i_SrcCell.CanEatDownLeft = isEatingPathClear(oppCoin, eDirection.UpRight);
@@ -328,7 +326,7 @@ namespace Logic
             if(upLeftCell != null && !upLeftCell.IsEmpty
                                   && isCoinOpponentPlayer(
                                       currentCoinOwner,
-                                      upLeftCell.Coin.Player)) // if opp to the left
+                                      upLeftCell.Coin.Player))
             {
                 oppCoin = upLeftCell.Coin;
                 if (i_SrcCell.Player == eCellOwner.Player2)
@@ -367,11 +365,7 @@ namespace Logic
         public bool CanCoinEat(Coin i_SrcCell)
         {
             bool canEat = canRegularCoinEat(i_SrcCell);
-
-            //if(i_Coin != null)
-            
             canEat = i_SrcCell.IsKing ? canKingCoinEat(i_SrcCell) : canEat;
-
             
             return canEat;
         }
@@ -395,7 +389,6 @@ namespace Logic
             return CanOtherCoinsEat(eCellOwner.Player2);
         }
 
-
         public void updateAllEatingSteps()
         {
             foreach (Coin coin in m_Player1CoinSet)
@@ -405,6 +398,7 @@ namespace Logic
                     CanCoinEat(coin);
                 }
             }
+
             foreach (Coin coin in m_Player2CoinSet)
             {
                 if (coin != null && coin.isAlive)
@@ -413,7 +407,6 @@ namespace Logic
                 }
             }
         }
-
 
         public void CheckAndUpdateKings()
         {
@@ -435,14 +428,5 @@ namespace Logic
                 }
             }
         }
-
-
-
-
-
-        //-------------------printing methods---------------------------
-
-
-
     }
 }

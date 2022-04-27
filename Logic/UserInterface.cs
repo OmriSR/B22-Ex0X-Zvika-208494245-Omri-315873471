@@ -6,7 +6,6 @@ namespace Logic
 {
     class UserInterface
     {
-
         public string getMoveUI()
         {
             Console.WriteLine("Please enter input....");
@@ -20,8 +19,6 @@ namespace Logic
             Ex02.ConsoleUtils.Screen.Clear();
             Console.WriteLine("Hope you had fun! \n See you next time");
         }
-
-        //-----------------  Main Menu  -----------
 
         public short GetNumOfPlayers()
         {
@@ -40,12 +37,14 @@ namespace Logic
         public string GetPlayerName()
         {
             Console.WriteLine("Please enter player's name: ");
+
             return Console.ReadLine();
         }
 
         public short GetBoardSize()
         {
             string boardSize;
+
             do
             {
                 Console.WriteLine("Please enter board size ( 6/8/10 ) : ");
@@ -56,7 +55,6 @@ namespace Logic
             return Convert.ToInt16(boardSize);
         }
 
-        //----------------- Turn Info Printing ---------
         public void PrintPlayersTurn(eCellOwner i_CurrentPlayer, string i_PlayerOnaName, string i_PlayerTwoName)
         {
             if(i_CurrentPlayer == eCellOwner.Player1)
@@ -98,7 +96,6 @@ namespace Logic
             System.Threading.Thread.Sleep(2000);
         }
 
-        //------------------ Board Printing------------
         public void PrintBoard(Cell[,] i_GameBoard, short i_GameSize)
         {
             short currentCol = 0;
@@ -131,6 +128,7 @@ namespace Logic
         private bool checkIfToPrintCoinsOnBoard(Cell[,] i_GameBoard, short i_Row, short i_Col, short i_GameSize)
         {
             bool didPrint = false;
+
             if(i_Row != 0 && i_Row % 2 == 0)
             {
                 short rowCheck = (short)(i_Row / 2 - 1);
@@ -156,6 +154,7 @@ namespace Logic
         private bool printCoinsOnBoard(Cell[,] i_GameBoard, short i_RowToCheck, short i_ColToCheck)
         {
             bool didPrint = false;
+
             if(i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player1)
             {
                 if(i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
@@ -189,9 +188,10 @@ namespace Logic
         private void printFirstRow(short i_GameSize)
         {
             short row = 0;
+
             for(short i = 0; i < i_GameSize * 4 + 1; i++)
             {
-                if(i % 4 == 0 && i != 0) // First Row drawing
+                if(i % 4 == 0 && i != 0) 
                 {
                     Console.Write((char)(row + 'A'));
                     row++;
@@ -208,6 +208,7 @@ namespace Logic
         private bool printFirstCol(short i_Row, short i_Col, ref short i_CurrentCol)
         {
             bool didPrint = false;
+
             if(i_Col == 0 && i_Row % 2 == 0 && i_Row != 0)
             {
                 Console.Write((char)(i_CurrentCol + 'a'));
@@ -221,6 +222,7 @@ namespace Logic
         private bool printShaveSign(short i_currentRow)
         {
             bool didPrint = false;
+
             if(i_currentRow % 2 != 0)
             {
                 didPrint = true;
@@ -233,6 +235,7 @@ namespace Logic
         private bool printCommaSign(short i_Row, short i_Col)
         {
             bool didPrint = false;
+
             if(i_Col % 4 == 1 && i_Row != 0 && i_Row % 2 == 0)
             {
                 Console.Write('|');
@@ -250,6 +253,7 @@ namespace Logic
         public void PrintWin(eCellOwner i_PlayerWon, string i_Player1Name, string i_Player2Name)
         {
             Ex02.ConsoleUtils.Screen.Clear();
+
             if(i_PlayerWon == eCellOwner.Player1)
             {
                 Console.WriteLine("Player {0} wins! Congratulations!", i_Player1Name);
@@ -258,15 +262,17 @@ namespace Logic
             {
                 Console.WriteLine("Player {0} wins! Congratulations!", i_Player2Name);
             }
+
             System.Threading.Thread.Sleep(5000);
         }
 
         public bool DoYouWantToPlayAnotherGame()
         {
             bool playAnotherGame = false;
+            string userInput;
+
             Ex02.ConsoleUtils.Screen.Clear();
             Console.WriteLine("Do you want to play another game? If yes, write Y. If not, write N. ");
-            string userInput;
 
             do
             {
