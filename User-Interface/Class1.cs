@@ -2,7 +2,7 @@
 
 namespace User_Interface
 {
-    public class Class1
+    public class Printer
     {
     }
 }

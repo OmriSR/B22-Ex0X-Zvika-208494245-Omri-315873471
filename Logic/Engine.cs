@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Ex02.ConsoleUtils;
 
 namespace Logic
 {
@@ -9,40 +10,39 @@ namespace Logic
     {
         private enum eGameMode { SinglePlayer, TwoPlayers }
 
-        bool m_toQuit = false;
-        DataProcessor m_inputHandler = new DataProcessor();
+        bool m_toQuit = false, m_GameOver = false;
         eCellOwner m_curPlayer = eCellOwner.Player1;
-        bool m_GameOver = false;
         eGameMode m_GameMove;
+
         //------------- Main Game Loop ---------------------
-        public void StartGame(short i_BoardSize)
+        public bool StartGame(short i_BoardSize, UserInterface i_UserConnections, DataProcessor i_InputHandler, short i_NumOfPlayers)
         {
             GameBoard gameBoard = new GameBoard(i_BoardSize);
             Cell srcCell, dstCell;
             Coin coinThatHasToEatAgain = null;
-            bool thisStepIncludesASpecificCoinEat = false;
-            m_GameMove = eGameMode.SinglePlayer;
-            //m_GameMove = GetGameMode();    UI func needs to be written
+            bool isValid, thisStepIncludesASpecificCoinEat = false;
+            m_GameMove = i_NumOfPlayers == 1 ? eGameMode.SinglePlayer : eGameMode.TwoPlayers; 
+
             do
             {
                 Ex02.ConsoleUtils.Screen.Clear();
                 gameBoard.CheckAndUpdateKings();
-                gameBoard.PrintBoard(gameBoard.Board, gameBoard.r_BoardSize);
+                i_UserConnections.PrintBoard(gameBoard.Board, i_BoardSize);
                 updateAllGotMoves(gameBoard);
                 gameBoard.updateAllEatingSteps();
-                PrintPlayersTurn(m_curPlayer);
+                i_UserConnections.PrintPlayersTurn(m_curPlayer);
                 
                 if (m_GameMove == eGameMode.SinglePlayer && m_curPlayer == eCellOwner.Player2)
                 {
                     //    // AI computer move
                     bool didCoinEatThisTurn = false;
-                    Coin coinThatMovedInComputerMove = ComputerMove(gameBoard, ref didCoinEatThisTurn);
+                    Coin coinThatMovedInComputerMove = ComputerMove(gameBoard, ref didCoinEatThisTurn, i_InputHandler);
+
                     if (gameBoard.CanCoinEat(coinThatMovedInComputerMove) && didCoinEatThisTurn)
                     {
                         coinThatHasToEatAgain = coinThatMovedInComputerMove;
                         thisStepIncludesASpecificCoinEat = true;
-                        Console.WriteLine("Computer can eat again. Turn stays with computer. ");
-                        System.Threading.Thread.Sleep(2000);
+                        i_UserConnections.PrintErrorMassage(3);
                         continue;
                     }
 
@@ -53,29 +53,29 @@ namespace Logic
                 }
                 else
                 {
-                    m_inputHandler.GetInputIfValidTranslateToCells(gameBoard, out srcCell, out dstCell);
+                    m_toQuit = i_InputHandler.GetInputIfValidTranslateToCells(gameBoard, out srcCell, out dstCell, out isValid, i_UserConnections);
 
-                    if(srcCell == null || dstCell == null)
+                    if(!isValid)
                     {
-                        PrintInvalidInput(1);
+                        i_UserConnections.PrintErrorMassage(1);
                         continue; // but dont change turn!
                     }
 
                     if(m_toQuit)
                     {
-                        //print proper massage using UI.
+                        i_UserConnections.PrintQuitMassage();
                         break;
                     }
 
-                    if(!m_inputHandler.MoveValidation(gameBoard, srcCell, dstCell, m_curPlayer))
+                    if(!i_InputHandler.MoveValidation(gameBoard, srcCell, dstCell, m_curPlayer))
                     {
-                        PrintInvalidInput(1);
+                        i_UserConnections.PrintErrorMassage(1);
                         continue; // but dont change turn!
                     }
 
                     if(thisStepIncludesASpecificCoinEat && srcCell.Coin != coinThatHasToEatAgain)
                     {
-                        PrintInvalidInput(2);
+                        i_UserConnections.PrintErrorMassage(2);
                         continue;
                     }
 
@@ -85,11 +85,8 @@ namespace Logic
                         //{
                         /*make the move and eat.*/
                         Coin coinToMove = gameBoard.Board[srcCell.Row, srcCell.Col].Coin;
-                        eDirection directionToMove = getEatingDirection(
-                            srcCell.Row,
-                            srcCell.Col,
-                            dstCell.Row,
-                            dstCell.Col);
+                        eDirection directionToMove = getEatingDirection(srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
+
                         if(checkIfGivenDirectionIsPossibleEating(directionToMove, coinToMove))
                         {
                             MoveCoin(gameBoard.Board, ref coinToMove, srcCell.Row, srcCell.Col, dstCell.Row, dstCell.Col);
@@ -97,7 +94,7 @@ namespace Logic
                         }
                         else
                         {
-                            PrintInvalidInput(2);
+                            i_UserConnections.PrintErrorMassage(2);
                             continue; // but dont change turn!
                         }
 
@@ -105,8 +102,7 @@ namespace Logic
                         {
                             coinThatHasToEatAgain = dstCell.Coin;
                             thisStepIncludesASpecificCoinEat = true;
-                            Console.WriteLine("You have another step with eating possible. Turn stays with you. You have to play it.");
-                            System.Threading.Thread.Sleep(2000);
+                            i_UserConnections.PrintErrorMassage(4);
                             continue;
                         }
                         // directionToMove = gameBoard.GetSubjectiveDirection(directionToMove, srcCell.Coin.Player);
@@ -131,7 +127,7 @@ namespace Logic
                     }
                     else if(gameBoard.CanOtherCoinsEat(m_curPlayer))
                     {
-                        PrintInvalidInput(2);
+                        i_UserConnections.PrintErrorMassage(2);
                         continue; // but dont change turn!
                     }
                     else if(checkIfPlayerOutOfMoves(gameBoard, m_curPlayer))
@@ -143,7 +139,7 @@ namespace Logic
                             && gameBoard.Board[dstCell.Row, dstCell.Col].Coin.Player != eCellOwner.Empty)
                     {
                         // the move was valid and in bounds. But in the other spot was an enemy that we couldn't eat.
-                        PrintInvalidInput(1);
+                        i_UserConnections.PrintErrorMassage(1);
                         continue; // but dont change turn!
                     }
                     else
@@ -158,6 +154,8 @@ namespace Logic
                 changePlayersTurn(ref m_curPlayer);
             }
             while(!m_toQuit && !m_GameOver);
+
+            return m_toQuit;
         }
 
         private void updateAllGotMoves(GameBoard i_GameBoard)
@@ -177,6 +175,7 @@ namespace Logic
                 }
             }
         }
+
         private void updateGotMoves(GameBoard i_GameBoard, Coin i_Coin)
         {
             bool isValidMoveUpRight, isValidMoveUpLeft, isValidMoveDownRight, isValidMoveDownLeft;
@@ -308,7 +307,6 @@ namespace Logic
             return !stillGotMoves;
         }
 
-
         private bool checkIfGivenDirectionIsPossibleEating(eDirection i_DirectionToMove, Coin i_CoinToMove)
         {
             bool directionIsEating = false;
@@ -337,23 +335,10 @@ namespace Logic
             }
             return directionIsEating;
         }
+
         private bool srcCoinCanEatOrNoCoinCan(GameBoard i_GameBoard, Coin i_SrcCoin)
         {
             return (i_GameBoard.CanCoinEat(i_SrcCoin) || !i_GameBoard.CanOtherCoinsEat(m_curPlayer));  //   if I cant eat and no one else can it --> it is a valid move
-        }
-
-        /*UI method!*/
-        public string getMoveUI(out bool o_toQuit)
-        {
-            Console.WriteLine("Please enter input....");
-            string COLrow = Console.ReadLine();
-
-            if (!m_inputHandler.IsValidInput(COLrow, out o_toQuit))
-            {
-                COLrow = "Invalid input! please try again";
-            }
-
-            return COLrow;
         }
 
         // Moves coin after we know that the move is valid
@@ -409,7 +394,6 @@ namespace Logic
 
         }
 
-
         private bool checkIfNextMoveMakesAKing(short i_BoardSize, short i_NewRow, eCellOwner i_PlayerNumber)
         {
             return ((i_NewRow == 0 && i_PlayerNumber == eCellOwner.Player1) ||
@@ -461,7 +445,7 @@ namespace Logic
             return directionToReturn;
         }
 
-        public Coin ComputerMove(GameBoard i_GameBoard, ref bool i_DidEat)
+        public Coin ComputerMove(GameBoard i_GameBoard, ref bool i_DidEat, DataProcessor i_InputHandler)
         {
             Random rnd = new Random();
             short dstCellRow, dstCellCol, indexOfCoinToMove;
@@ -492,9 +476,17 @@ namespace Logic
 
             }
             Cell srcCell = i_GameBoard.Board[coinToMove.Row, coinToMove.Col];
-            directionToMove = getRandomPossibleDirection(coinToMove, computerHasToEatThisTurn);
-            // directionToMove = i_GameBoard.mirrorDirection(directionToMove);
-            getDstRowAndDstColFromDirection(srcCell, directionToMove, out dstCellRow, out dstCellCol, computerHasToEatThisTurn);
+
+            //----------- NEW ------------------
+            do
+            {
+                directionToMove = getRandomPossibleDirection(coinToMove, computerHasToEatThisTurn);
+                // directionToMove = i_GameBoard.mirrorDirection(directionToMove);
+                getDstRowAndDstColFromDirection(srcCell, directionToMove, out dstCellRow, out dstCellCol, computerHasToEatThisTurn);
+            }
+            while (!i_InputHandler.IsIndicesInBoardBounds(dstCellRow, dstCellCol, i_GameBoard.r_BoardSize));
+            //----------------------------------
+
             if (computerHasToEatThisTurn)
             {
                 MoveCoinWithEatingStep(i_GameBoard.Board, coinToMove, coinToMove.Row, coinToMove.Col, directionToMove);
@@ -509,7 +501,6 @@ namespace Logic
            System.Threading.Thread.Sleep(2000);
            return coinToMove;
         }
-
 
         private eDirection getRandomPossibleDirection(Coin i_Coin, bool i_ComputerHasToEatThisTurn)
         {
@@ -585,11 +576,7 @@ namespace Logic
             return listOfCoins;
         }
 
-        private void getDstRowAndDstColFromDirection(
-            Cell i_SrcCell,
-            eDirection i_Direction,
-            out short o_dstRow,
-            out short o_dstCol, bool i_ComputerEatsThisTurn)
+        private void getDstRowAndDstColFromDirection( Cell i_SrcCell, eDirection i_Direction, out short o_dstRow, out short o_dstCol, bool i_ComputerEatsThisTurn)
         {
             o_dstRow = i_SrcCell.Row;
             o_dstCol = i_SrcCell.Col;
@@ -653,39 +640,6 @@ namespace Logic
                         }
                 }
             }
-        }
-
-        
-
-
-        // MOVE THIS FUNCTION TO UI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // AND CHANGE ECELLOWNER TO STRING PLAYERNAME!!!!!!!!!!!!!!!!!!!!!!!!!
-        public void PrintPlayersTurn(eCellOwner i_CurrentPlayer)
-        {
-            Console.WriteLine("This is {0}'s turn!", i_CurrentPlayer);
-        }
-
-        public void PrintInvalidInput(ushort typeOfInvalid)
-        {
-            switch(typeOfInvalid)
-            {
-                case 1:
-                    {
-                        Console.WriteLine("Invalid input! please try again.");
-                        break;
-                    }
-                case 2:
-                    {
-                        Console.WriteLine("Invalid input! You have another move with a possible eat!");
-                        break;
-                    }
-                case 3:
-                    {
-                        break;
-                    }
-            }
-           System.Threading.Thread.Sleep(2000);
-
         }
     }
 

@@ -48,9 +48,14 @@ namespace Logic
             //}
 
 
+
+
+
+
+
             // Testing a running game
-            Engine newGame = new Engine();
-            newGame.StartGame(8);
+            GameStarter newGame = new GameStarter();
+   
 
 
 

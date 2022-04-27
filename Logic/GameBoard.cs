@@ -207,8 +207,6 @@ namespace Logic
             return coinsThatCanEat;
         }
 
-
-
         public bool CanOtherCoinsEat(eCellOwner i_CurPlayer)
         {
             List<Coin> ableToEatCoins;
@@ -388,7 +386,6 @@ namespace Logic
             return (i_CellOwnerToCheck != i_CurrentPlayer && i_CellOwnerToCheck != eCellOwner.Empty);
         }
 
-
         public bool CheckIfComputerHasToEatThisTurn()
         {
             return CanOtherCoinsEat(eCellOwner.Player2);
@@ -413,7 +410,27 @@ namespace Logic
             }
         }
 
-        
+
+        public void CheckAndUpdateKings()
+        {
+            for (short row = 0; row < r_BoardSize; row++)
+            {
+                for (short col = 0; col < r_BoardSize; col++)
+                {
+                    if (m_GameBoard[row, col].Coin != null)
+                    {
+                        if (m_GameBoard[row, col].Coin.Player == eCellOwner.Player1 && row == 0)
+                        {
+                            m_GameBoard[row, col].Coin.IsKing = true;
+                        }
+                        else if (m_GameBoard[row, col].Coin.Player == eCellOwner.Player2 && row == r_BoardSize - 1)
+                        {
+                            m_GameBoard[row, col].Coin.IsKing = true;
+                        }
+                    }
+                }
+            }
+        }
 
 
 
@@ -421,165 +438,7 @@ namespace Logic
 
         //-------------------printing methods---------------------------
 
-        public void PrintBoard(Cell[,] i_GameBoard, short i_GameSize)
-        {
-            short currentCol = 0;
-            printFirstRow(i_GameSize);
-            
-            for (short row = 1; row < i_GameSize * 2 + 2; row++)
-            {
-                for (short col = 0; col < i_GameSize * 4 + 2; col++)
-                {
-                    if(!printFirstCol(row, col,ref currentCol))
-                    {
-                        if(!printShaveSign(row))
-                        {
-                            if(!printCommaSign(row, col))
-                            {
-                                if(!checkIfToPrintCoinsOnBoard(i_GameBoard, row, col, i_GameSize))
-                                {
-                                    Console.Write(' ');
-                                }
-                            }
-                        }
-                    }
-                }
-                Console.Write(Environment.NewLine);
-            }
 
-        }
 
-        private bool checkIfToPrintCoinsOnBoard(Cell[,] i_GameBoard, short i_Row, short i_Col, short i_GameSize)
-        {
-            bool didPrint = false;
-            if(i_Row != 0 && i_Row % 2 == 0)
-            {
-                short rowCheck = (short)(i_Row / 2 - 1);
-                short colCheck = (short)(i_Col / 4);
-                if(colCheck == i_GameSize)
-                {
-                    colCheck--;
-                }
-
-                if(i_GameBoard[rowCheck, colCheck].Coin == null)
-                {
-                    didPrint = false;
-                }
-                else if (!i_GameBoard[rowCheck, colCheck].IsEmpty && i_Col % 4 == 3)
-                {
-                    didPrint = printCoinsOnBoard(i_GameBoard, rowCheck, colCheck);
-                }
-            }
-
-            return didPrint;
-        }
-
-        private bool printCoinsOnBoard(Cell[,] i_GameBoard, short i_RowToCheck, short i_ColToCheck)
-        {
-            bool didPrint = false;
-            if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player1)
-            {
-                if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
-                {
-                    Console.Write('K');
-                }
-                else
-                {
-                    Console.Write('X');
-                }
-
-                didPrint = true;
-            }
-            else if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.Player == eCellOwner.Player2)
-            {
-                if (i_GameBoard[i_RowToCheck, i_ColToCheck].Coin.IsKing)
-                {
-                    Console.Write('U');
-                }
-                else
-                {
-                    Console.Write('O');
-                }
-                didPrint = true;
-            }
-
-            return didPrint;
-        }
-
-        private void printFirstRow(short i_GameSize)
-        {
-            short row = 0;
-            for (short i = 0; i < i_GameSize * 4 + 1; i++)
-            {
-                if (i % 4 == 0 && i != 0) // First Row drawing
-                {
-                    Console.Write((char)(row + 'A'));
-                    row++;
-                }
-                else if (i!=0)
-                {
-                    Console.Write(' ');
-                }
-            }
-            Console.Write(Environment.NewLine);
-        }
-
-        private bool printFirstCol(short i_Row, short i_Col, ref short i_CurrentCol)
-        {
-            bool didPrint = false;
-            if (i_Col == 0 && i_Row % 2 == 0 && i_Row != 0)
-            {
-                Console.Write((char)(i_CurrentCol + 'a'));
-                i_CurrentCol++;
-                didPrint = true;
-            }
-
-            return didPrint;
-        }
-
-        private bool printShaveSign(short i_currentRow)
-        {
-            bool didPrint = false;
-            if (i_currentRow % 2 != 0)
-            {
-                didPrint = true;
-                Console.Write('=');
-            }
-
-            return didPrint;
-        }
-
-        private bool printCommaSign(short i_Row, short i_Col)
-        {
-            bool didPrint = false;
-            if (i_Col % 4 == 1 && i_Row != 0 && i_Row % 2 == 0)
-            {
-                Console.Write('|');
-                didPrint = true;
-            }
-
-            return didPrint;
-        }
-
-        public void CheckAndUpdateKings()
-        {
-            for(short row = 0; row < r_BoardSize; row++)
-            {
-                for(short col = 0; col < r_BoardSize; col++)
-                {
-                    if(m_GameBoard[row, col].Coin != null)
-                    {
-                        if(m_GameBoard[row, col].Coin.Player == eCellOwner.Player1 && row == 0)
-                        {
-                            m_GameBoard[row, col].Coin.IsKing = true;
-                        }
-                        else if(m_GameBoard[row, col].Coin.Player == eCellOwner.Player2 && row == r_BoardSize - 1)
-                        {
-                            m_GameBoard[row, col].Coin.IsKing = true;
-                        }
-                    }
-                }
-            }
-        }
     }
 }
