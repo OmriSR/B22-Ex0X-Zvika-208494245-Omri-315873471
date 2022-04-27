@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Logic\Logic.csproj" />
-    <ProjectReference Include="..\User-Interface\User-Interface.csproj" />
   </ItemGroup>
 
 </Project>

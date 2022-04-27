@@ -83,20 +83,20 @@ namespace Logic
             //o_dstCell.Col = dstCol;
         }
 
-        public void GetInputIfValidTranslateToCells(GameBoard i_GameBoard, out Cell o_CurCell, out Cell o_DstCell)
+        public bool GetInputIfValidTranslateToCells(GameBoard i_GameBoard, out Cell o_CurCell, out Cell o_DstCell, out bool o_isValid, UserInterface i_UserConnection)
         {
-            Engine testToDelete = new Engine();
             bool toQuit;
-            string COLrow = testToDelete.getMoveUI(out toQuit);           // UI method is used!!! handle it
+            string COLrow = i_UserConnection.getMoveUI();
+            o_CurCell = o_DstCell = null;
 
-            if (COLrow == "Invalid input! please try again")
-            {
-                o_CurCell = o_DstCell = null;
-            }
-            else
+            o_isValid = IsValidInput(COLrow, out toQuit);
+            
+            if(!toQuit && o_isValid)
             {
                 translateInputToCells(i_GameBoard, COLrow, out o_CurCell, out o_DstCell);
             }
+
+            return toQuit;
         }
 
         //----------------- Given Move Validation ------------------------
@@ -115,7 +115,11 @@ namespace Logic
             return (moveInBounds && srcCellIsOwnedByCurrentPlayer && i_DstCell.IsEmpty && moveIsDiagonalizedAndValid);           
         }
 
-        
+        public bool IsIndicesInBoardBounds(short i_Row, short i_Col, short i_BoardSize)
+        {
+            return (i_Col >= 0 && i_Col < i_BoardSize && i_Row >= 0 && i_Row < i_BoardSize);
+        }
+
         public bool IsMoveInBoardBounds(Cell i_srcCell,Cell i_dstCell, short i_BoardSize)
         {
             return (isCellInBoardBounds(i_srcCell, i_BoardSize) && isCellInBoardBounds(i_dstCell, i_BoardSize));
@@ -123,10 +127,7 @@ namespace Logic
 
         private bool isCellInBoardBounds(Cell i_Cell, short i_BoardSize)
         {
-            bool colSizeValid = i_Cell.Col >= 0 && i_Cell.Col < i_BoardSize;
-            bool rowSizeValid = i_Cell.Row >= 0 && i_Cell.Row < i_BoardSize;
-
-            return (colSizeValid && rowSizeValid);
+            return IsIndicesInBoardBounds(i_Cell.Row, i_Cell.Col, i_BoardSize);
         }
 
         private bool checkSourceAndDstValidMove(GameBoard i_GameBoard, Cell i_SrcCell, Cell i_DstCell, eCellOwner i_PlayerNum)
