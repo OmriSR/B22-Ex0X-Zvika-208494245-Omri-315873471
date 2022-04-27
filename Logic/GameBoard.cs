@@ -230,7 +230,7 @@ namespace Logic
                 oppCoin = downRightCell.Coin;
                 if(i_Coin.Player == eCellOwner.Player2)
                 {
-                    i_Coin.CanEatUpLeft = isEatingPathClear(oppCoin, eDirection.UpLeft);
+                    i_Coin.CanEatUpLeft = isEatingPathClear(oppCoin, eDirection.DownRight);
                 }
                 else
                 {
@@ -254,7 +254,7 @@ namespace Logic
                 oppCoin = downLeftCell.Coin;
                 if(i_Coin.Player == eCellOwner.Player2)
                 {
-                    i_Coin.CanEatUpRight = isEatingPathClear(oppCoin, eDirection.UpRight);
+                    i_Coin.CanEatUpRight = isEatingPathClear(oppCoin, eDirection.DownLeft);
                 }
                 else
                 {
