@@ -20,11 +20,14 @@ namespace Logic
         {
             GameBoard gameBoard = new GameBoard(i_BoardSize);
             Cell srcCell, dstCell;
+            Coin coinThatHasToEatAgain = null;
+            bool thisStepIncludesASpecificCoinEat = false;
             m_GameMove = eGameMode.SinglePlayer;
             //m_GameMove = GetGameMode();    UI func needs to be written
             do
             {
                 Ex02.ConsoleUtils.Screen.Clear();
+                gameBoard.CheckAndUpdateKings();
                 gameBoard.PrintBoard(gameBoard.Board, gameBoard.r_BoardSize);
                 updateAllGotMoves(gameBoard);
                 gameBoard.updateAllEatingSteps();
@@ -33,9 +36,21 @@ namespace Logic
                 if (m_GameMove == eGameMode.SinglePlayer && m_curPlayer == eCellOwner.Player2)
                 {
                     //    // AI computer move
-                    ComputerMove(gameBoard);
-                    //    changePlayersTurn(ref m_curPlayer);
-                    //    continue;
+                    bool didCoinEatThisTurn = false;
+                    Coin coinThatMovedInComputerMove = ComputerMove(gameBoard, ref didCoinEatThisTurn);
+                    if (gameBoard.CanCoinEat(coinThatMovedInComputerMove) && didCoinEatThisTurn)
+                    {
+                        coinThatHasToEatAgain = coinThatMovedInComputerMove;
+                        thisStepIncludesASpecificCoinEat = true;
+                        Console.WriteLine("Computer can eat again. Turn stays with computer. ");
+                        System.Threading.Thread.Sleep(2000);
+                        continue;
+                    }
+
+
+                    thisStepIncludesASpecificCoinEat = false;
+                    changePlayersTurn(ref m_curPlayer);
+                    continue;
                 }
                 else
                 {
@@ -57,6 +72,12 @@ namespace Logic
                     {
                         PrintInvalidInput(1);
                         continue; // but dont change turn!
+                    }
+
+                    if(thisStepIncludesASpecificCoinEat && srcCell.Coin != coinThatHasToEatAgain)
+                    {
+                        PrintInvalidInput(2);
+                        continue;
                     }
 
                     if(gameBoard.CanCoinEat(srcCell.Coin)) // If a player can eat on left, but more both left+right, it can go right.
@@ -83,8 +104,10 @@ namespace Logic
 
                         if(gameBoard.CanCoinEat(dstCell.Coin))
                         {
+                            coinThatHasToEatAgain = dstCell.Coin;
+                            thisStepIncludesASpecificCoinEat = true;
                             Console.WriteLine("You have another step with eating possible. Turn stays with you. You have to play it.");
-                           System.Threading.Thread.Sleep(2000);
+                            System.Threading.Thread.Sleep(2000);
                             continue;
                         }
                         // directionToMove = gameBoard.GetSubjectiveDirection(directionToMove, srcCell.Coin.Player);
@@ -132,7 +155,7 @@ namespace Logic
                     }
                 }
 
-                gameBoard.CheckAndUpdateKings();
+                thisStepIncludesASpecificCoinEat = false;
                 changePlayersTurn(ref m_curPlayer);
             }
             while(!m_toQuit && !m_GameOver);
@@ -439,7 +462,7 @@ namespace Logic
             return directionToReturn;
         }
 
-        public void ComputerMove(GameBoard i_GameBoard)
+        public Coin ComputerMove(GameBoard i_GameBoard, ref bool i_DidEat)
         {
             Random rnd = new Random();
             short dstCellRow, dstCellCol, indexOfCoinToMove;
@@ -451,12 +474,14 @@ namespace Logic
 
             if (computerHasToEatThisTurn)
             {
+                i_DidEat = true;
                 possibleEatingCurrentCoins = i_GameBoard.getCoinsThatCanEat(eCellOwner.Player2);
                 indexOfCoinToMove = Convert.ToInt16(rnd.Next(possibleEatingCurrentCoins.Count));
                 coinToMove = possibleEatingCurrentCoins[indexOfCoinToMove];
             }
             else
             {
+                i_DidEat = false;
                 coinsThatCanMove = GetCoinsThatCanMoveWithoutEat(i_GameBoard);
                 // IF NO MOVES AVAILABLE ------- COMPUTER LOSES. NEED TO CHECK WE DONT GET HERE WITH 0 MOVES POSSIBLE.
                 indexOfCoinToMove = Convert.ToInt16(rnd.Next(coinsThatCanMove.Count));
@@ -483,6 +508,7 @@ namespace Logic
             //}
 
            System.Threading.Thread.Sleep(2000);
+           return coinToMove;
         }
 
 
