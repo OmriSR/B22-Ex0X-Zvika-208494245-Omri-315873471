@@ -250,17 +250,17 @@ namespace Logic
             Console.WriteLine("TIE! Both players have no moves available! Congratulations!");
         }
 
-        public void PrintWin(eCellOwner i_PlayerWon, string i_Player1Name, string i_Player2Name)
+        public void PrintWin(eCellOwner i_PlayerWon, string i_Player1Name, string i_Player2Name, short i_Player1Points, short i_Player2Points)
         {
             Ex02.ConsoleUtils.Screen.Clear();
 
             if(i_PlayerWon == eCellOwner.Player1)
             {
-                Console.WriteLine("Player {0} wins! Congratulations!", i_Player1Name);
+                Console.WriteLine("Player {0} wins! Congratulations! Points: {1}.", i_Player1Name, i_Player1Points);
             }
             else
             {
-                Console.WriteLine("Player {0} wins! Congratulations!", i_Player2Name);
+                Console.WriteLine("Player {0} wins! Congratulations! Points: {1}.", i_Player2Name, i_Player2Points);
             }
 
             System.Threading.Thread.Sleep(5000);

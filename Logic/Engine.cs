@@ -52,7 +52,7 @@ namespace Logic
                     }
                     else
                     {
-                        i_UserConnections.PrintWin(checkOtherPlayerTurns, i_PlayerOneName, i_PlayerTwoName);
+                        i_UserConnections.PrintWin(checkOtherPlayerTurns, i_PlayerOneName, i_PlayerTwoName, m_PlayerOnePoints, m_PlayerTwoPoints);
                         UpdatePlayersPoints(gameBoard, ref m_PlayerTwoPoints, ref m_PlayerOnePoints, checkOtherPlayerTurns);
                     }
 

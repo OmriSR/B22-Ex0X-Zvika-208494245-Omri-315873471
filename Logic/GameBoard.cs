@@ -10,8 +10,8 @@ namespace Logic
     {
         public Cell[,] m_GameBoard;
         public readonly short r_BoardSize;
-        private readonly short m_numOfCoins;
-        Coin[] m_Player1CoinSet, m_Player2CoinSet;
+        private readonly short r_numOfCoins;
+        private readonly Coin[] r_Player1CoinSet, r_Player2CoinSet;
 
         private void initBoard(short i_BoardSize)
         {
@@ -23,13 +23,13 @@ namespace Logic
                     if ((row < (i_BoardSize / 2) - 1) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Player2, col, row, r_BoardSize);
-                        m_Player2CoinSet[indexForPlayer2CoinSet] = m_GameBoard[row, col].Coin;
+                        r_Player2CoinSet[indexForPlayer2CoinSet] = m_GameBoard[row, col].Coin;
                         indexForPlayer2CoinSet++;
                     }
                     else if (row > (i_BoardSize / 2) && ((row % 2 == 0 && col % 2 != 0) || (row % 2 != 0 && col % 2 == 0)))
                     {
                         m_GameBoard[row, col] = new Cell(eCellOwner.Player1, col, row, r_BoardSize);
-                        m_Player1CoinSet[indexForPlayer1CoinSet] = m_GameBoard[row, col].Coin;
+                        r_Player1CoinSet[indexForPlayer1CoinSet] = m_GameBoard[row, col].Coin;
                         indexForPlayer1CoinSet++;
                     }
                     else
@@ -44,9 +44,9 @@ namespace Logic
         {
             r_BoardSize = i_BoardSize;
             m_GameBoard = new Cell[r_BoardSize, r_BoardSize];
-            m_numOfCoins = getNumOfCoinsByBoardSize(i_BoardSize);
-            m_Player1CoinSet = new Coin[m_numOfCoins / 2];
-            m_Player2CoinSet = new Coin[m_numOfCoins / 2];
+            r_numOfCoins = getNumOfCoinsByBoardSize(i_BoardSize);
+            r_Player1CoinSet = new Coin[r_numOfCoins / 2];
+            r_Player2CoinSet = new Coin[r_numOfCoins / 2];
 
             initBoard(i_BoardSize);
         }
@@ -96,7 +96,7 @@ namespace Logic
         {
             get
             {
-                return m_Player1CoinSet;
+                return r_Player1CoinSet;
             }
         }
 
@@ -104,7 +104,7 @@ namespace Logic
         {
             get
             {
-                return m_Player2CoinSet;
+                return r_Player2CoinSet;
             }
         }
 
@@ -391,7 +391,7 @@ namespace Logic
 
         public void updateAllEatingSteps()
         {
-            foreach (Coin coin in m_Player1CoinSet)
+            foreach (Coin coin in r_Player1CoinSet)
             {
                 if(coin != null && coin.isAlive)
                 {
@@ -399,7 +399,7 @@ namespace Logic
                 }
             }
 
-            foreach (Coin coin in m_Player2CoinSet)
+            foreach (Coin coin in r_Player2CoinSet)
             {
                 if (coin != null && coin.isAlive)
                 {
